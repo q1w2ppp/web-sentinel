@@ -1,0 +1,13 @@
+{
+  "name": "web-sentinel",
+  "version": "1.0.0",
+  "description": "SENTINEL · 网络哨兵 — Swiss Modern styles web monitor",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "rss-parser": "^3.13.0",
+    "sql.js": "^1.11.0"
+  }
+}
