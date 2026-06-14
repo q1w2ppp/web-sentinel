@@ -2,7 +2,7 @@ const http = require("http"), fs = require("fs"), path = require("path");
 const RssParser = require("rss-parser");
 const initSqlJs = require("sql.js");
 
-const PORT = 9091;
+const PORT = process.env.PORT || 9091;
 const MIME = { ".html": "text/html;charset=utf-8", ".js": "text/javascript", ".json": "application/json", ".css": "text/css" };
 const DB_PATH = path.join(__dirname, "data", "sentinel.db");
 
@@ -285,6 +285,10 @@ async function periodicFetch() {
 
 // ═══ HTTP Server ═══
 const server = http.createServer(async (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  if (req.method === "OPTIONS") { res.writeHead(204); return res.end(); }
+
   // Static files
   if (req.method === "GET" && (req.url === "/" || req.url.match(/\.(html|js|css|json|png|ico)$/))) {
     let fp = req.url === "/" ? "/index.html" : req.url;

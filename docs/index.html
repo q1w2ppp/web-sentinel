@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SENTINEL · 网络哨兵</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--red:#E03A3E;--black:#111;--white:#FFF;--gray-1:#F5F5F5;--gray-2:#E0E0E0;--gray-3:#999}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--white);color:var(--black);font-size:14px;line-height:1.6}
+.layout{display:grid;grid-template-columns:repeat(12,1fr);max-width:1440px;margin:0 auto;min-height:100vh}
+.zone--left{grid-column:2/7;padding:64px 48px 64px 0;border-right:1px solid var(--black)}
+.zone--right{grid-column:7/12;padding:64px 0 64px 48px}
+.wordmark{font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--gray-3);margin-bottom:16px}
+.title{font-size:48px;font-weight:700;letter-spacing:.06em;line-height:1.05;margin-bottom:8px}
+.subtitle{font-size:13px;font-weight:400;letter-spacing:.08em;color:var(--gray-3);margin-bottom:32px}
+.label{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-3);margin-bottom:12px}
+.stats{display:flex;gap:48px;margin-bottom:48px}
+.stat{display:flex;align-items:center;gap:8px}
+.stat__dot{width:6px;height:6px;background:var(--red);border-radius:50%}
+.stat__value{font-size:28px;font-weight:600;letter-spacing:.04em;line-height:1}
+.stat__label{font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-3);margin-top:2px}
+.rule{height:1px;background:var(--black);margin:24px 0 32px}
+.rule--section{height:1px;background:var(--black);margin:48px 0 32px}
+.keywords{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:32px}
+.keyword{font-size:13px;font-weight:500;letter-spacing:.02em;padding:3px 10px;border:1px solid var(--black);cursor:pointer;transition:all .12s;user-select:none}
+.keyword:hover{background:var(--red);border-color:var(--red);color:var(--white)}
+.keyword--add{border-style:dashed;color:var(--gray-3)}
+.keyword--add:hover{background:var(--black);border-color:var(--black);color:var(--white)}
+.feed-list{display:flex;flex-direction:column}
+.feed-item{display:grid;grid-template-columns:1fr auto;padding:16px 0;border-bottom:1px solid var(--gray-2);cursor:pointer;transition:background 80ms;animation:fadeIn .2s}
+.feed-item:hover{background:var(--gray-1);margin:0 -12px;padding:16px 12px}
+.feed-item__source{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-3)}
+.feed-item__time{font-size:10px;color:var(--gray-3);text-align:right}
+.feed-item__title{font-size:15px;font-weight:500;line-height:1.35;margin-top:4px;grid-column:1/-1;display:flex;align-items:center;gap:8px}
+.feed-item__badge{display:inline-block;width:6px;height:6px;background:var(--red);border-radius:50%;flex-shrink:0}
+.briefing{margin-bottom:40px}
+.briefing__meta{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-3);margin-bottom:12px;display:flex;justify-content:space-between}
+.briefing__number{font-size:32px;font-weight:700;letter-spacing:.04em;margin-bottom:4px}
+.briefing__body{font-size:15px;font-weight:400;line-height:1.7;max-width:480px}
+.source-list{display:flex;gap:24px;flex-wrap:wrap;margin-top:48px}
+.source-item{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:500;letter-spacing:.04em;color:var(--gray-3)}
+.source-item__dot{width:4px;height:4px;background:var(--black);border-radius:50%}
+.empty{font-size:13px;color:var(--gray-3);font-style:italic;padding:24px 0}
+.modal-overlay{position:fixed;inset:0;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;z-index:100;opacity:0;pointer-events:none;transition:opacity .15s}
+.modal-overlay--open{opacity:1;pointer-events:auto}
+.modal{border:1px solid var(--black);background:var(--white);padding:32px;width:360px}
+.modal__title{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:20px}
+.modal__input{width:100%;border:1px solid var(--black);padding:8px 12px;font-family:Inter,sans-serif;font-size:14px;outline:0;margin-bottom:16px}
+.modal__input:focus{border-color:var(--red)}
+.modal__actions{display:flex;gap:8px;justify-content:flex-end}
+.btn{font-family:Inter,sans-serif;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:8px 20px;border:1px solid var(--black);background:var(--white);cursor:pointer;transition:background .1s,color .1s}
+.btn:hover{background:var(--black);color:var(--white)}
+.btn--red{background:var(--red);border-color:var(--red);color:var(--white)}
+.toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:var(--black);color:var(--white);font-size:12px;font-weight:500;letter-spacing:.04em;padding:10px 24px;z-index:200;opacity:0;transition:opacity .2s}
+.toast--visible{opacity:1}
+.status-bar{font-size:10px;letter-spacing:.08em;color:var(--gray-3);margin-top:64px;padding-top:16px;border-top:1px solid var(--gray-2)}
+.status-bar--ok{color:var(--black)}
+.status-bar--err{color:var(--red)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.zone--left{grid-column:1;padding:32px 24px;border-right:0;border-bottom:1px solid var(--black)}.zone--right{grid-column:1;padding:32px 24px}.title{font-size:36px}.stats{gap:24px}}
+</style>
+</head>
+<body>
+<div class="layout">
+<div class="zone--left">
+<div class="wordmark">SENTINEL · 网络哨兵</div>
+<div class="title">SENTINEL</div>
+<div class="subtitle">全网关键词监测</div>
+<div class="stats" id="stats">
+<div class="stat"><span class="stat__dot"></span><div><div class="stat__value" id="stat-total">-</div><div class="stat__label">总扫描</div></div></div>
+<div class="stat"><span class="stat__dot"></span><div><div class="stat__value" id="stat-hits">-</div><div class="stat__label">值得看</div></div></div>
+<div class="stat"><span class="stat__dot"></span><div><div class="stat__value" id="stat-briefings">-</div><div class="stat__label">简报</div></div></div>
+</div>
+<div class="rule"></div>
+<div class="label">KEYWORDS</div>
+<div class="keywords" id="keywords"></div>
+<div class="rule"></div>
+<div class="label">SOURCES</div>
+<div class="source-list">
+<span class="source-item"><span class="source-item__dot"></span>Hacker News</span>
+<span class="source-item"><span class="source-item__dot"></span>V2EX</span>
+<span class="source-item"><span class="source-item__dot"></span>少数派</span>
+<span class="source-item"><span class="source-item__dot"></span>GitHub</span>
+<span class="source-item"><span class="source-item__dot"></span>知乎</span>
+<span class="source-item"><span class="source-item__dot"></span>微博</span>
+<span class="source-item"><span class="source-item__dot"></span>B站</span>
+</div>
+<div class="status-bar" id="status">连接后端...</div>
+</div>
+<div class="zone--right">
+<div class="label" style="margin-bottom:16px;display:flex;justify-content:space-between"><span>值得看</span><span id="feed-toggle" style="cursor:pointer;font-weight:400;letter-spacing:.04em" onclick="toggleFeed()">显示全部</span></div>
+<div class="feed-list" id="feed"><div class="empty">等待数据...</div></div>
+<div class="rule--section"></div>
+<div class="briefing" id="briefing" style="display:none">
+<div class="briefing__meta"><span id="briefing-time"></span><span style="color:var(--red);cursor:pointer" onclick="genBriefing()">GENERATE</span></div>
+<div class="briefing__number" id="briefing-num">#00</div>
+<div class="briefing__body" id="briefing-body"></div>
+</div>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+// ═══════ CONFIG: 改成你的 Railway 地址 ═══════
+const API_BASE = 'https://YOUR-APP.railway.app';
+// ══════════════════════════════════════════════
+
+const KW = ['开源','编程','Rust','Go','JavaScript','Python','前端','后端','数据库','AI','大模型','DeepSeek','GPT','Agent','prompt','OpenAI','Figma','设计','UI','UX','创业','融资','SaaS','增长','苹果','华为','芯片','机器人','游戏','独立游戏','Steam','量子','太空','生物学','vibe coding','浏览器'];
+let showAll = false, errorCount = 0;
+
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function ago(ts){if(!ts)return'';const d=Date.now()-new Date(ts).getTime(),m=Math.floor(d/60000);if(m<1)return'刚刚';if(m<60)return m+'m';const h=Math.floor(m/60);if(h<24)return h+'h';return Math.floor(h/24)+'d'}
+
+function renderKeywords(){document.getElementById('keywords').innerHTML=KW.map(k=>`<span class="keyword">${k}</span>`).join('')}
+
+function renderFeed(items){
+  const el=document.getElementById('feed');
+  if(!items||!items.length){el.innerHTML='<div class="empty">暂无命中，等待采集...</div>';return}
+  el.innerHTML=items.map(i=>`<div class="feed-item" onclick="window.open('${esc(i.link)}','_blank')"><span class="feed-item__source">${esc(i.source)}</span><span class="feed-item__time">${ago(i.time)}</span><span class="feed-item__title">${i.hit?'<span class="feed-item__badge"></span>':''}${esc(i.title)}</span></div>`).join('')
+}
+
+function renderBriefing(b){
+  if(!b){document.getElementById('briefing').style.display='none';return}
+  document.getElementById('briefing').style.display='block'
+  document.getElementById('briefing-time').textContent=ago(b.time)
+  document.getElementById('briefing-num').textContent='#'+String(b.num).padStart(2,'0')
+  document.getElementById('briefing-body').textContent=b.body
+}
+
+function renderStats(t,h,b){document.getElementById('stat-total').textContent=t||0;document.getElementById('stat-hits').textContent=h||0;document.getElementById('stat-briefings').textContent=b||0}
+
+async function poll(){
+  try{
+    const u=showAll?API_BASE+'/api/state?all=1':API_BASE+'/api/state';
+    const d=await(await fetch(u)).json();
+    renderStats(d.total,d.hits,d.briefings);
+    renderFeed(d.feed);
+    renderBriefing(d.latestBriefing);
+    errorCount=0;
+    document.getElementById('status').textContent='连接正常 · '+new Date().toLocaleTimeString();
+    document.getElementById('status').className='status-bar status-bar--ok';
+  }catch(e){
+    errorCount++;
+    document.getElementById('status').textContent='后端离线 ('+errorCount+')';
+    document.getElementById('status').className='status-bar status-bar--err';
+  }
+}
+
+function toggleFeed(){showAll=!showAll;document.getElementById('feed-toggle').textContent=showAll?'只看命中':'显示全部';poll()}
+
+async function genBriefing(){
+  try{await fetch(API_BASE+'/api/briefing',{method:'POST'});setTimeout(poll,3000)}catch(e){}
+}
+
+renderKeywords();
+poll();
+setInterval(poll,30000);
+</script>
+</body>
+</html>
