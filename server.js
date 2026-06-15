@@ -369,7 +369,7 @@ const server = http.createServer(async (req, res) => {
 });
 
 // ═══ Boot ═══
-initSqlJs().then(async (SQL) => {
+initSqlJs({ locateFile: (file) => path.join(__dirname, "node_modules", "sql.js", "dist", file) }).then(async (SQL) => {
   await initDB(SQL);
   // Load latest briefing
   const lastBriefing = dbGet("SELECT * FROM briefings ORDER BY id DESC LIMIT 1");
