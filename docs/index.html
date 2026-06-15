@@ -117,7 +117,7 @@ function renderKeywords(){document.getElementById('keywords').innerHTML=KW.map(k
 function renderFeed(items){
   const el=document.getElementById('feed');
   if(!items||!items.length){el.innerHTML='<div class="empty">暂无命中，等待采集...</div>';return}
-  el.innerHTML=items.map(i=>`<div class="feed-item" onclick="window.open('${esc(i.link)}','_blank')"><span class="feed-item__source">${esc(i.source)}</span><span class="feed-item__time">${ago(i.time)}</span><span class="feed-item__title">${i.hit?'<span class="feed-item__badge"></span>':''}${esc(i.title)}</span></div>`).join('')
+  el.innerHTML=items.map(i=>`<div class="feed-item" onclick="window.open('${esc(i.link)}','_blank')"><span class="feed-item__source">${esc(i.source)}</span><span class="feed-item__time">${ago(i.time)}</span><span class="feed-item__title">${i.hit?'<span class="feed-item__badge"></span>':''}${esc(i.title)}</span>${i.summary?`<div style="grid-column:1/-1;font-size:12px;color:var(--gray-3);margin-top:4px;line-height:1.5">${esc(i.summary)}</div>`:''}</div>`).join('')
 }
 
 function renderBriefing(b){

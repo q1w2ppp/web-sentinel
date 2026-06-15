@@ -46,6 +46,7 @@ async function initDB(SQL) {
     db = new SQL.Database();
   }
   db.run("CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY AUTOINCREMENT, source TEXT, title TEXT, link TEXT, time TEXT, hit INTEGER DEFAULT 0)");
+  try { db.run("ALTER TABLE items ADD COLUMN summary TEXT DEFAULT ''"); } catch(e) {}
   db.run("CREATE TABLE IF NOT EXISTS briefings (id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, body TEXT)");
   // Unique constraint: try create, ignore if exists
   try { db.run("CREATE UNIQUE INDEX IF NOT EXISTS idx_items_unique ON items(source, link)"); } catch(e) {}
@@ -283,6 +284,86 @@ async function periodicFetch() {
   console.log("⏳ Fetching all sources...");
   await fetchAll();
   console.log("✅ Fetch done");
+  // Auto-summarize new hit items
+  summarizeNewHits();
+}
+
+// ═══ AI Summary ═══
+async function summarizeItem(item) {
+  try {
+    // Try to fetch article content
+    let content = "";
+    try {
+      const resp = await fetch(item.link, { 
+        headers: { "User-Agent": "SENTINEL/1.0" },
+        signal: AbortSignal.timeout(5000)
+      });
+      const html = await resp.text();
+      // Extract text from HTML (simple approach)
+      content = html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+                    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+                    .replace(/<[^>]+>/g, ' ')
+                    .replace(/\s+/g, ' ')
+                    .trim()
+                    .substring(0, 3000);
+    } catch(e) { /* Use title only */ }
+
+    const text = content || item.title;
+    const prompt = `请用一句话中文总结以下内容的核心要点（30字以内，只返回总结，不要任何前缀）：\n\n标题：${item.title}\n\n${content ? '内容：' + content.substring(0, 2000) : ''}`;
+
+    const keysPath = path.join(__dirname, "..", "ai-matrix", "data", "keys.json");
+    let apiKey = "";
+    if (fs.existsSync(keysPath)) {
+      const keys = JSON.parse(fs.readFileSync(keysPath, "utf-8"));
+      apiKey = keys[0]?.key || "";
+    }
+    if (!apiKey) return;
+
+    const body = JSON.stringify({
+      model: "deepseek-ai/DeepSeek-V3",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.5,
+      max_tokens: 100
+    });
+
+    const result = await new Promise((resolve, reject) => {
+      const r = https.request({
+        hostname: "api.siliconflow.cn",
+        path: "/v1/chat/completions",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + apiKey,
+          "Content-Length": Buffer.byteLength(body)
+        }
+      }, res => {
+        let d = ""; res.on("data", c => d += c);
+        res.on("end", () => {
+          try {
+            const j = JSON.parse(d);
+            if (j.error) reject(new Error(j.error.message));
+            resolve(j.choices?.[0]?.message?.content?.trim() || "");
+          } catch(e) { reject(e); }
+        });
+      });
+      r.on("error", reject);
+      r.write(body); r.end();
+    });
+
+    if (result) {
+      dbRun("UPDATE items SET summary = ? WHERE id = ?", [result, item.id]);
+      console.log(`📝 Summarized #${item.id}: ${result}`);
+    }
+  } catch(e) {
+    // Silently fail - summary is optional
+  }
+}
+
+async function summarizeNewHits() {
+  const items = dbAll("SELECT * FROM items WHERE hit = 1 AND summary = '' LIMIT 5");
+  for (const item of items) {
+    await summarizeItem(item);
+  }
 }
 
 // ═══ HTTP Server ═══
@@ -353,6 +434,17 @@ const server = http.createServer(async (req, res) => {
         res.end(JSON.stringify({ error: "Bad JSON" }));
       }
     });
+    return;
+  }
+
+  // API: Summarize item
+  if (req.method === "POST" && req.url.startsWith("/api/summarize/")) {
+    const id = parseInt(req.url.split("/").pop());
+    const item = dbGet("SELECT * FROM items WHERE id = ?", [id]);
+    if (!item) { res.writeHead(404); return res.end(JSON.stringify({ error: "Not found" })); }
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ ok: true }));
+    summarizeItem(item);
     return;
   }
 
