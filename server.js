@@ -291,6 +291,12 @@ const server = http.createServer(async (req, res) => {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   if (req.method === "OPTIONS") { res.writeHead(204); return res.end(); }
 
+  // Health check
+  if (req.method === "GET" && req.url === "/health") {
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    return res.end("OK");
+  }
+
   // Static files
   if (req.method === "GET" && (req.url === "/" || req.url.match(/\.(html|js|css|json|png|ico)$/))) {
     let fp = req.url === "/" ? "/index.html" : req.url;
