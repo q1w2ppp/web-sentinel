@@ -10,6 +10,8 @@ const DB_PATH = path.join(__dirname, "data", "sentinel.db");
 let db;
 
 function saveDB() {
+  const dir = path.dirname(DB_PATH);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(DB_PATH, Buffer.from(db.export().buffer));
 }
 
