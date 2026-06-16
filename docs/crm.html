@@ -119,7 +119,8 @@ header h1 i{color:var(--blue)}
     </div>
     <button class="btn btn-primary" onclick="openCustomerModal()"><i class="fa-solid fa-plus"></i>添加客户</button>
     <button class="btn btn-outline btn-sm" onclick="exportData()" title="导出"><i class="fa-solid fa-download"></i></button>
-    <button class="btn btn-outline btn-sm" onclick="importData()" title="导入"><i class="fa-solid fa-upload"></i></button>
+    <button class="btn btn-outline btn-sm" onclick="installApp()" id="installBtn" style="display:none"><i class="fa-solid fa-download"></i> 安装</button>
+<button class="btn btn-outline btn-sm" onclick="importData()" title="导入"><i class="fa-solid fa-upload"></i></button>
   </div>
 </header>
 
@@ -313,7 +314,20 @@ function t(msg){const e=document.getElementById('toast');e.textContent=msg;e.cla
 // ═══ Init ═══
 renderList();
 
-// PWA Service Worker
+// PWA Install
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferredPrompt=e;
+  document.getElementById('installBtn').style.display='inline-flex';
+});
+async function installApp(){
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();
+  const r=await deferredPrompt.userChoice;
+  deferredPrompt=null;
+  document.getElementById('installBtn').style.display='none';
+}
+// Service Worker
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js');
 }
