@@ -168,6 +168,7 @@ function renderList(){
         ${c.company?`<span><i class="fa-regular fa-building"></i>${c.company}</span>`:''}
         ${c.industry?`<span><i class="fa-solid fa-tag"></i>${c.industry}</span>`:''}
         ${c.phone?`<span><i class="fa-solid fa-phone"></i>${c.phone}</span>`:''}
+        ${c.createdAt?`<span><i class="fa-regular fa-clock"></i>${c.createdAt}</span>`:''}
         ${c.history&&c.history.length?`<span><i class="fa-regular fa-comments"></i>${c.history.length} 条记录</span>`:''}
       </div>
     </div>`;
@@ -199,6 +200,7 @@ function selectCustomer(id){
     </div>
     <div class="status-badge status-${c.status}">${c.status}</div>
     <div class="detail-info">
+      ${c.createdAt?`<span><i class="fa-regular fa-clock"></i>创建: ${c.createdAt}</span>`:''}
       ${c.company?`<span><i class="fa-regular fa-building"></i>${c.company}</span>`:''}
       ${c.industry?`<span><i class="fa-solid fa-tag"></i>${c.industry}</span>`:''}
       ${c.position?`<span><i class="fa-solid fa-briefcase"></i>${c.position}</span>`:''}
@@ -261,7 +263,7 @@ function saveCustomer(id){
     notes:document.getElementById('f-notes').value.trim()
   };
   if(id){const c=customers.find(x=>x.id===id);Object.assign(c,data)}
-  else{customers.push({id:uuid(),...data,history:[],createdAt:new Date().toISOString().slice(0,10)})}
+  else{customers.push({id:uuid(),...data,history:[],createdAt:new Date().toLocaleString('zh-CN')})}
   save();closeModal('modal-customer');renderList();if(selectedId)selectCustomer(selectedId);t('已保存')
 }
 
