@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>客户跟进记录本</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--blue:#6CB4EE;--green:#88C9A6;--red:#e88888;--bg:#f5f6f8;--card:#fff;--text:#2c3e50;--muted:#8899aa;--border:#e8ecf1}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','PingFang SC',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6}
+
+.app{max-width:1400px;margin:0 auto;padding:24px 28px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;flex-wrap:wrap;gap:16px}
+header h1{font-size:26px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:10px}
+header h1 i{color:var(--blue)}
+
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.search-box{position:relative}
+.search-box input{padding:9px 14px 9px 36px;border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;width:220px;background:var(--card);outline:none;transition:border-color .2s}
+.search-box input:focus{border-color:var(--blue)}
+.search-box i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px}
+.filter-tabs{display:flex;gap:4px}
+.filter-tab{padding:7px 14px;border-radius:18px;border:none;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500;background:var(--card);color:var(--text);transition:all .2s}
+.filter-tab:hover{background:#eef4fb}
+.filter-tab.active{background:var(--blue);color:#fff}
+
+.btn{padding:9px 18px;border-radius:20px;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:500;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:#5ba3dd}
+.btn-sm{padding:6px 12px;font-size:11px;border-radius:16px}
+.btn-outline{background:var(--card);border:1px solid var(--border);color:var(--text)}
+.btn-outline:hover{background:#f0f2f5}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{background:#76b895}
+
+.main-layout{display:grid;grid-template-columns:1fr 420px;gap:24px}
+@media(max-width:1024px){.main-layout{grid-template-columns:1fr}}
+
+/* Customer list */
+.list-panel{display:flex;flex-direction:column;gap:12px}
+.customer-card{background:var(--card);border-radius:14px;padding:18px 22px;cursor:pointer;transition:all .2s;border:2px solid transparent;position:relative;box-shadow:0 1px 3px rgba(0,0,0,.03)}
+.customer-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.06);transform:translateY(-1px)}
+.customer-card.selected{border-color:var(--blue);box-shadow:0 2px 12px rgba(108,180,238,.15)}
+.card-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.card-name{font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px}
+.card-name .avatar{width:36px;height:36px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;flex-shrink:0}
+.card-info{display:flex;gap:16px;margin-top:8px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.card-info span{display:flex;align-items:center;gap:4px}
+.card-info i{font-size:11px}
+
+.status-badge{padding:4px 10px;border-radius:12px;font-size:11px;font-weight:500}
+.status-待联系{background:#fff3e0;color:#e67e22}
+.status-已联系{background:#e3f2fd;color:#1976d2}
+.status-已成交{background:#e8f5e9;color:#388e3c}
+.status-已流失{background:#fce4ec;color:#c62828}
+
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty-state i{font-size:48px;margin-bottom:16px;opacity:.3}
+.empty-state p{font-size:14px}
+
+/* Detail panel */
+.detail-panel{background:var(--card);border-radius:16px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.03);display:flex;flex-direction:column;gap:20px;max-height:calc(100vh - 160px);overflow-y:auto;position:sticky;top:24px}
+@media(max-width:1024px){.detail-panel{position:static;max-height:none}}
+.detail-header{display:flex;justify-content:space-between;align-items:center}
+.detail-header h3{font-size:20px;font-weight:700}
+.detail-info{display:flex;flex-wrap:wrap;gap:12px;font-size:13px;color:var(--muted)}
+.detail-info span{display:flex;align-items:center;gap:4px}
+
+/* Timeline */
+.timeline{position:relative;padding-left:24px;display:flex;flex-direction:column;gap:0}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--border);border-radius:1px}
+.timeline-item{position:relative;padding:0 0 20px 0}
+.timeline-item::before{content:'';position:absolute;left:-20px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--blue);border:2px solid var(--card);box-shadow:0 0 0 2px var(--blue)}
+.timeline-time{font-size:11px;color:var(--muted);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.timeline-method{font-size:10px;padding:2px 8px;border-radius:8px;background:rgba(108,180,238,.1);color:var(--blue);font-weight:500}
+.timeline-body{font-size:13px;color:var(--text);line-height:1.6;background:var(--bg);padding:12px 14px;border-radius:10px}
+.timeline-next{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:100;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:auto}
+.modal{background:var(--card);border-radius:16px;padding:28px;width:520px;max-width:90vw;max-height:85vh;overflow-y:auto;box-shadow:0 16px 48px rgba(0,0,0,.15)}
+.modal h2{font-size:20px;font-weight:700;margin-bottom:20px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;letter-spacing:.04em;text-transform:uppercase}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;outline:none;transition:border-color .2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--blue)}
+.form-group textarea{resize:vertical;min-height:60px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:24px}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--text);color:#fff;padding:10px 24px;border-radius:10px;font-size:13px;z-index:200;opacity:0;pointer-events:none;transition:opacity .3s}
+.toast.show{opacity:1}
+
+.note-placeholder{color:var(--muted);font-size:13px;text-align:center;padding:40px 0}
+</style>
+</head>
+<body>
+
+<div class="app">
+<header>
+  <h1><i class="fa-solid fa-address-book"></i>客户跟进记录本</h1>
+  <div class="toolbar">
+    <div class="search-box"><i class="fa-solid fa-search"></i><input type="text" id="search" placeholder="搜索客户或公司..." oninput="renderList()"></div>
+    <div class="filter-tabs" id="filters">
+      <button class="filter-tab active" data-status="全部" onclick="setFilter('全部')">全部</button>
+      <button class="filter-tab" data-status="待联系" onclick="setFilter('待联系')">待联系</button>
+      <button class="filter-tab" data-status="已联系" onclick="setFilter('已联系')">已联系</button>
+      <button class="filter-tab" data-status="已成交" onclick="setFilter('已成交')">已成交</button>
+      <button class="filter-tab" data-status="已流失" onclick="setFilter('已流失')">已流失</button>
+    </div>
+    <button class="btn btn-primary" onclick="openCustomerModal()"><i class="fa-solid fa-plus"></i>添加客户</button>
+    <button class="btn btn-outline btn-sm" onclick="exportData()" title="导出"><i class="fa-solid fa-download"></i></button>
+    <button class="btn btn-outline btn-sm" onclick="importData()" title="导入"><i class="fa-solid fa-upload"></i></button>
+  </div>
+</header>
+
+<div class="main-layout">
+  <div class="list-panel" id="list"></div>
+
+  <div class="detail-panel" id="detail">
+    <div class="note-placeholder"><i class="fa-regular fa-hand-pointer" style="font-size:32px;opacity:.2;display:block;margin-bottom:12px"></i>点击左侧客户查看详情</div>
+  </div>
+</div>
+</div>
+
+<div class="modal-overlay" id="modal-customer"><div class="modal" id="modal-customer-inner"></div></div>
+<div class="modal-overlay" id="modal-timeline"><div class="modal" id="modal-timeline-inner"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══ Data ═══
+let customers=JSON.parse(localStorage.getItem('crm_customers')||'[]');
+let selectedId=null,currentFilter='全部';
+
+function save(){localStorage.setItem('crm_customers',JSON.stringify(customers))}
+
+function uuid(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}
+
+// ═══ Render List ═══
+function renderList(){
+  const q=document.getElementById('search').value.toLowerCase();
+  let filtered=customers.filter(c=>{
+    if(currentFilter!=='全部'&&c.status!==currentFilter)return false;
+    if(q&&!c.name.toLowerCase().includes(q)&&!(c.company||'').toLowerCase().includes(q))return false;
+    return true;
+  });
+  const el=document.getElementById('list');
+  if(!filtered.length){el.innerHTML=`<div class="empty-state"><i class="fa-regular fa-folder-open"></i><p>暂无客户数据</p></div>`;return}
+  el.innerHTML=filtered.map(c=>{
+    const n=c.nextContact?new Date(c.nextContact):null;
+    const due=n?Math.ceil((n-new Date())/(86400000)):null;
+    return `<div class="customer-card ${c.id===selectedId?'selected':''}" onclick="selectCustomer('${c.id}')">
+      <div class="card-row">
+        <div class="card-name"><div class="avatar" style="background:${colorFor(c.name)}">${c.name[0]}</div>${c.name}<span class="status-badge status-${c.status}">${c.status}</span></div>
+        <div style="font-size:11px;color:var(--muted)">${due!==null?(due<0?'<span style="color:#e88888">逾期 '+Math.abs(due)+' 天</span>':due+' 天后'):''}</div>
+      </div>
+      <div class="card-info">
+        ${c.company?`<span><i class="fa-regular fa-building"></i>${c.company}</span>`:''}
+        ${c.industry?`<span><i class="fa-solid fa-tag"></i>${c.industry}</span>`:''}
+        ${c.phone?`<span><i class="fa-solid fa-phone"></i>${c.phone}</span>`:''}
+        ${c.history&&c.history.length?`<span><i class="fa-regular fa-comments"></i>${c.history.length} 条记录</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+function colorFor(name){const colors=['#6CB4EE','#88C9A6','#f0a070','#b090d0','#e88888','#60b0c0'];let h=0;for(let i=0;i<name.length;i++)h+=name.charCodeAt(i);return colors[h%colors.length]}
+
+// ═══ Filter ═══
+function setFilter(s){
+  currentFilter=s;
+  document.querySelectorAll('.filter-tab').forEach(b=>b.classList.toggle('active',b.dataset.status===s));
+  renderList();
+}
+
+// ═══ Select ═══
+function selectCustomer(id){
+  selectedId=id;renderList();
+  const c=customers.find(x=>x.id===id);if(!c)return;
+  const el=document.getElementById('detail');
+  const hist=(c.history||[]).slice().sort((a,b)=>b.time.localeCompare(a.time));
+  el.innerHTML=`
+    <div class="detail-header">
+      <h3>${c.name}</h3>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-outline btn-sm" onclick="openCustomerModal('${c.id}')"><i class="fa-solid fa-pen"></i></button>
+        <button class="btn btn-green btn-sm" onclick="openTimelineModal('${c.id}')"><i class="fa-solid fa-plus"></i> 跟进</button>
+        <button class="btn btn-outline btn-sm" style="color:#e88888" onclick="deleteCustomer('${c.id}')"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>
+    <div class="status-badge status-${c.status}">${c.status}</div>
+    <div class="detail-info">
+      ${c.company?`<span><i class="fa-regular fa-building"></i>${c.company}</span>`:''}
+      ${c.industry?`<span><i class="fa-solid fa-tag"></i>${c.industry}</span>`:''}
+      ${c.position?`<span><i class="fa-solid fa-briefcase"></i>${c.position}</span>`:''}
+      ${c.phone?`<span><i class="fa-solid fa-phone"></i>${c.phone}</span>`:''}
+      ${c.email?`<span><i class="fa-regular fa-envelope"></i>${c.email}</span>`:''}
+      ${c.nextContact?`<span><i class="fa-regular fa-calendar"></i>下次: ${c.nextContact}</span>`:''}
+    </div>
+    ${c.notes?`<div style="background:var(--bg);padding:12px;border-radius:10px;font-size:13px;line-height:1.6">${c.notes}</div>`:''}
+    <div style="font-size:12px;font-weight:600;color:var(--muted);margin-top:8px">跟进记录 (${hist.length})</div>
+    ${hist.length?`<div class="timeline">${hist.map(h=>`
+      <div class="timeline-item">
+        <div class="timeline-time">${h.time} <span class="timeline-method">${h.method}</span></div>
+        <div class="timeline-body">${h.content}</div>
+        ${h.nextContact?`<div class="timeline-next"><i class="fa-regular fa-calendar"></i> 下次跟进: ${h.nextContact}</div>`:''}
+      </div>
+    `).join('')}</div>`:`<div class="note-placeholder" style="padding:24px">暂无跟进记录</div>`}
+  `;
+}
+
+// ═══ Customer Modal ═══
+function openCustomerModal(id){
+  const c=id?customers.find(x=>x.id===id):null;
+  const defaults={name:'',company:'',position:'',phone:'',email:'',status:'待联系',nextContact:new Date(Date.now()+259200000).toISOString().slice(0,10),notes:''};
+  const data=c||defaults;
+  document.getElementById('modal-customer-inner').innerHTML=`
+    <h2>${c?'编辑客户':'添加客户'}</h2>
+    <div class="form-group"><label>客户名称 *</label><input type="text" id="f-name" value="${esc(data.name)}"></div>
+    <div class="form-row">
+      <div class="form-group"><label>公司</label><input type="text" id="f-company" value="${esc(data.company||'')}"></div>
+      <div class="form-group"><label>行业</label><input type="text" id="f-industry" value="${esc(data.industry||'')}"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>职位</label><input type="text" id="f-position" value="${esc(data.position||'')}"></div>
+    <div class="form-row">
+      <div class="form-group"><label>电话</label><input type="text" id="f-phone" value="${esc(data.phone||'')}"></div>
+      <div class="form-group"><label>邮箱</label><input type="email" id="f-email" value="${esc(data.email||'')}"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>跟进状态</label><select id="f-status">${['待联系','已联系','已成交','已流失'].map(s=>`<option ${data.status===s?'selected':''}>${s}</option>`).join('')}</select></div>
+      <div class="form-group"><label>下次跟进</label><input type="date" id="f-next" value="${data.nextContact||''}"></div>
+    </div>
+    <div class="form-group"><label>备注</label><textarea id="f-notes">${esc(data.notes||'')}</textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal('modal-customer')">取消</button>
+      <button class="btn btn-primary" onclick="saveCustomer('${id||''}')">保存</button>
+    </div>
+  `;
+  document.getElementById('modal-customer').classList.add('open');
+}
+function saveCustomer(id){
+  const name=document.getElementById('f-name').value.trim();if(!name){t('请输入客户名称');return}
+  const data={
+    name,company:document.getElementById('f-company').value.trim(),
+    industry:document.getElementById('f-industry').value.trim(),
+    position:document.getElementById('f-position').value.trim(),
+    phone:document.getElementById('f-phone').value.trim(),
+    email:document.getElementById('f-email').value.trim(),
+    status:document.getElementById('f-status').value,
+    nextContact:document.getElementById('f-next').value,
+    notes:document.getElementById('f-notes').value.trim()
+  };
+  if(id){const c=customers.find(x=>x.id===id);Object.assign(c,data)}
+  else{customers.push({id:uuid(),...data,history:[],createdAt:new Date().toISOString().slice(0,10)})}
+  save();closeModal('modal-customer');renderList();if(selectedId)selectCustomer(selectedId);t('已保存')
+}
+
+// ═══ Timeline Modal ═══
+function openTimelineModal(id){
+  const c=customers.find(x=>x.id===id);if(!c)return;
+  document.getElementById('modal-timeline-inner').innerHTML=`
+    <h2>添加跟进 — ${c.name}</h2>
+    <div class="form-row">
+      <div class="form-group"><label>跟进方式</label><select id="h-method">${['电话','微信','邮件','面谈'].map(m=>`<option>${m}</option>`).join('')}</select></div>
+      <div class="form-group"><label>下次跟进</label><input type="date" id="h-next" value="${new Date(Date.now()+259200000).toISOString().slice(0,10)}"></div>
+    </div>
+    <div class="form-group"><label>跟进内容</label><textarea id="h-content" rows="4" placeholder="记录了哪些内容..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal('modal-timeline')">取消</button>
+      <button class="btn btn-green" onclick="saveTimeline('${id}')">记录</button>
+    </div>
+  `;
+  document.getElementById('modal-timeline').classList.add('open');
+}
+function saveTimeline(id){
+  const c=customers.find(x=>x.id===id);if(!c)return;
+  const content=document.getElementById('h-content').value.trim();if(!content){t('请输入跟进内容');return}
+  if(!c.history)c.history=[];
+  c.history.push({
+    id:uuid(),time:new Date().toLocaleString('zh-CN'),
+    method:document.getElementById('h-method').value,
+    content,
+    nextContact:document.getElementById('h-next').value
+  });
+  c.status='已联系';c.nextContact=document.getElementById('h-next').value;
+  save();closeModal('modal-timeline');selectCustomer(id);renderList();t('跟进已记录')
+}
+
+// ═══ Delete ═══
+function deleteCustomer(id){if(!confirm('确定删除该客户？'))return;customers=customers.filter(x=>x.id!==id);save();selectedId=null;renderList();document.getElementById('detail').innerHTML='<div class="note-placeholder"><i class="fa-regular fa-hand-pointer" style="font-size:32px;opacity:.2;display:block;margin-bottom:12px"></i>点击左侧客户查看详情</div>';t('已删除')}
+
+// ═══ Modal ═══
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',function(e){if(e.target===this)closeModal(this.id)}));
+
+// ═══ Import/Export ═══
+function exportData(){const blob=new Blob([JSON.stringify(customers,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='crm-backup.json';a.click();t('已导出')}
+function importData(){const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=function(){const f=i.files[0];if(!f)return;const r=new FileReader();r.onload=function(){try{const d=JSON.parse(r.result);if(!Array.isArray(d))throw 0;customers=d;save();renderList();selectedId=null;document.getElementById('detail').innerHTML='<div class="note-placeholder"><i class="fa-regular fa-hand-pointer" style="font-size:32px;opacity:.2;display:block;margin-bottom:12px"></i>点击左侧客户查看详情</div>';t('导入成功')}catch(e){t('格式错误')}};r.readAsText(f)};i.click()}
+
+// ═══ Helpers ═══
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function t(msg){const e=document.getElementById('toast');e.textContent=msg;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2000)}
+
+// ═══ Init ═══
+renderList();
+</script>
+</body>
+</html>
