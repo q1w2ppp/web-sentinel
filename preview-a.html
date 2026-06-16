@@ -1,0 +1,30 @@
+<!DOCTYPE html><html lang="zh"><head><meta charset="UTF-8"><title>Style A · Swiss Modern</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#f8f6f0;display:flex;align-items:center;justify-content:center;height:100vh;overflow:hidden}
+.stage{width:1920px;height:1080px;position:relative;transform-origin:center;background:#f8f6f0}
+.grid{position:absolute;inset:80px;display:grid;grid-template-columns:3fr 2fr;grid-template-rows:1fr auto;gap:0}
+.left{display:flex;flex-direction:column;justify-content:center}
+.overline{font-size:14px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#c41e3a;margin-bottom:24px}
+.title{font-size:110px;font-weight:900;letter-spacing:.04em;line-height:.95;color:#1a1a1a;margin-bottom:32px}
+.subtitle{font-size:28px;font-weight:400;color:#666;max-width:600px;line-height:1.5}
+.right{display:flex;align-items:center;justify-content:center;position:relative}
+.shape{width:450px;height:450px;background:#c41e3a;clip-path:polygon(30% 0,100% 0,100% 70%,70% 100%,0 100%,0 30%)}
+.bottom{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;padding-top:48px;border-top:2px solid #1a1a1a}
+.bottom span{font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#1a1a1a}
+</style></head><body>
+<div class="stage" id="stage">
+<div class="grid">
+<div class="left">
+<div class="overline">Vibe Coding · 2026</div>
+<div class="title">AI 编程<br>新时代</div>
+<div class="subtitle">从写代码到描述意图——如何让 AI 写出你的第一个产品</div>
+</div>
+<div class="right"><div class="shape"></div></div>
+<div class="bottom"><span>SENTINEL · 网络哨兵</span><span>June 2026</span></div>
+</div>
+</div>
+<script>
+function rs(){const s=Math.min(innerWidth/1920,innerHeight/1080);document.getElementById('stage').style.transform=`scale(${s})`}
+window.addEventListener('resize',rs);rs()
+</script></body></html>

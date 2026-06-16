@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>线上自习室 · 静心</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  font-family:'Inter',-apple-system,sans-serif;
+  min-height:100vh;
+  background:linear-gradient(135deg,#e0f0e8,#c8e0d4);
+  background-image:url('https://images.pexels.com/photos/414171/pexels-photo-414171.jpeg');
+  background-size:cover;
+  background-position:center;
+  background-attachment:fixed;
+  color:#2c3e2d;
+  position:relative;
+}
+
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background:rgba(255,255,245,0.25);
+  z-index:0;
+}
+
+.overlay{position:relative;z-index:1;min-height:100vh;padding:40px 32px}
+
+.header{
+  text-align:center;margin-bottom:48px;
+}
+
+.header h1{
+  font-family:'Playfair Display',serif;
+  font-size:42px;font-weight:700;letter-spacing:.04em;
+  color:#2c3e2d;text-shadow:0 1px 2px rgba(255,255,255,.5);
+  margin-bottom:8px;
+}
+
+.header .quote{
+  font-size:16px;font-weight:400;color:#5a7a5a;font-style:italic;
+  min-height:24px;transition:opacity .4s;
+}
+
+.grid{
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  gap:28px;max-width:1260px;margin:0 auto;
+}
+
+.card{
+  background:rgba(255,255,250,.45);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  border-radius:24px;
+  padding:32px 28px;
+  box-shadow:0 4px 24px rgba(0,0,0,.04),0 1px 3px rgba(0,0,0,.03);
+  border:1px solid rgba(255,255,255,.5);
+  transition:transform .2s,box-shadow .2s;
+}
+
+.card:hover{box-shadow:0 8px 36px rgba(0,0,0,.06)}
+
+.card h2{
+  font-family:'Playfair Display',serif;
+  font-size:22px;font-weight:700;letter-spacing:.03em;
+  color:#2c3e2d;margin-bottom:24px;
+  display:flex;align-items:center;gap:10px;
+}
+
+.card h2 i{font-size:18px;color:#7ba587}
+
+/* Timer */
+.timer-display{
+  font-size:72px;font-weight:300;text-align:center;
+  letter-spacing:.06em;color:#1a3a1a;
+  margin-bottom:20px;font-feature-settings:"tnum";
+  font-variant-numeric:tabular-nums;
+}
+
+.timer-preset{
+  display:flex;gap:8px;justify-content:center;margin-bottom:16px;
+  flex-wrap:wrap;
+}
+
+.timer-preset button{
+  padding:6px 16px;border-radius:20px;border:1px solid rgba(100,140,100,.3);
+  background:rgba(255,255,255,.4);cursor:pointer;font-size:13px;
+  font-family:'Inter',sans-serif;color:#4a6a4a;transition:all .15s;
+}
+
+.timer-preset button:hover,.timer-preset button.active{
+  background:#7ba587;color:#fff;border-color:#7ba587;
+}
+
+.timer-custom{
+  display:flex;gap:8px;justify-content:center;margin-bottom:20px;
+}
+
+.timer-custom input{
+  width:60px;text-align:center;border:1px solid rgba(100,140,100,.3);
+  border-radius:12px;padding:6px;font-family:'Inter',sans-serif;
+  font-size:14px;background:rgba(255,255,255,.4);color:#2c3e2d;
+  outline:none;
+}
+
+.timer-custom input:focus{border-color:#7ba587}
+
+.timer-custom span{font-size:13px;color:#6a8a6a;align-self:center}
+
+.timer-actions{
+  display:flex;gap:10px;justify-content:center;
+}
+
+.timer-actions button{
+  width:46px;height:46px;border-radius:50%;
+  border:1px solid rgba(100,140,100,.25);
+  background:rgba(255,255,255,.5);cursor:pointer;
+  font-size:18px;color:#5a7a5a;transition:all .15s;
+}
+
+.timer-actions button:hover{background:#7ba587;color:#fff;border-color:#7ba587}
+.timer-actions .btn-main{width:auto;padding:0 28px;border-radius:23px;font-size:15px;font-weight:500;letter-spacing:.03em}
+
+/* White Noise */
+.noise-list{display:flex;flex-direction:column;gap:18px}
+
+.noise-item{}
+
+.noise-row{
+  display:flex;align-items:center;gap:12px;margin-bottom:6px;
+}
+
+.noise-row i{font-size:20px;color:#7ba587;width:24px;text-align:center}
+
+.noise-row span{font-size:14px;font-weight:500;color:#3a5a3a;flex:1}
+
+.noise-row button{
+  border:none;background:none;cursor:pointer;font-size:16px;color:#7ba587;
+  width:32px;height:32px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;transition:all .15s;
+}
+
+.noise-row button:hover{background:rgba(123,165,135,.15)}
+.noise-row button.playing{color:#4a8a4a;background:rgba(123,165,135,.2)}
+
+.noise-item input[type=range]{
+  width:100%;height:4px;-webkit-appearance:none;
+  background:rgba(123,165,135,.3);border-radius:2px;outline:none;
+}
+
+.noise-item input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:#7ba587;cursor:pointer;
+}
+
+/* Todo */
+.todo-input-row{
+  display:flex;gap:8px;margin-bottom:18px;
+}
+
+.todo-input-row input{
+  flex:1;border:1px solid rgba(100,140,100,.3);
+  border-radius:14px;padding:10px 16px;font-family:'Inter',sans-serif;
+  font-size:14px;background:rgba(255,255,255,.4);color:#2c3e2d;
+  outline:none;
+}
+
+.todo-input-row input:focus{border-color:#7ba587}
+
+.todo-input-row button{
+  border-radius:14px;border:none;background:#7ba587;color:#fff;
+  padding:10px 18px;cursor:pointer;font-family:'Inter',sans-serif;
+  font-size:14px;transition:all .15s;
+}
+
+.todo-input-row button:hover{background:#6a9476}
+
+.todo-list{list-style:none;max-height:260px;overflow-y:auto}
+
+.todo-list li{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;
+  border-radius:12px;transition:background .15s;
+  font-size:14px;
+}
+
+.todo-list li:hover{background:rgba(255,255,255,.3)}
+
+.todo-list li.done span{text-decoration:line-through;color:#8aaa8a}
+
+.todo-list li input[type=checkbox]{
+  accent-color:#7ba587;width:16px;height:16px;cursor:pointer;
+}
+
+.todo-list li span{flex:1;color:#3a5a3a}
+
+.todo-list li button{
+  border:none;background:none;cursor:pointer;color:#c4a0a0;
+  font-size:13px;padding:4px 8px;border-radius:8px;transition:all .15s;
+}
+
+.todo-list li button:hover{background:rgba(200,160,160,.15);color:#a07070}
+
+.empty-todo{text-align:center;color:#8aaa8a;font-size:13px;padding:24px 0}
+
+/* Responsive */
+@media(max-width:960px){
+  .grid{grid-template-columns:1fr;max-width:480px}
+  .header h1{font-size:32px}
+  .timer-display{font-size:56px}
+}
+
+@media(max-width:480px){
+  .overlay{padding:24px 16px}
+  .card{padding:24px 20px}
+  .timer-display{font-size:42px}
+}
+</style>
+</head>
+<body>
+<div class="overlay" id="app">
+
+<div class="header">
+  <h1>🌿 静心自习室</h1>
+  <div class="quote" id="quote">专注当下</div>
+</div>
+
+<div class="grid">
+
+  <!-- ⏱ Pomodoro -->
+  <div class="card">
+    <h2><i class="fa-regular fa-clock"></i> 番茄钟</h2>
+    <div class="timer-display" id="timer">25:00</div>
+    <div class="timer-preset">
+      <button class="active" data-min="25">25分钟</button>
+      <button data-min="45">45分钟</button>
+      <button data-min="60">60分钟</button>
+    </div>
+    <div class="timer-custom">
+      <input type="number" id="customMin" value="25" min="5" max="120">
+      <span>分钟</span>
+    </div>
+    <div class="timer-actions">
+      <button class="btn-main" id="btnStart" onclick="toggleTimer()">▶ 开始</button>
+      <button onclick="resetTimer()" title="重置"><i class="fa-solid fa-arrow-rotate-left"></i></button>
+    </div>
+  </div>
+
+  <!-- 🎵 White Noise -->
+  <div class="card">
+    <h2><i class="fa-solid fa-music"></i> 白噪音</h2>
+    <div class="noise-list">
+      <div class="noise-item">
+        <div class="noise-row">
+          <i class="fa-solid fa-cloud-rain"></i>
+          <span>雨声</span>
+          <button onclick="toggleNoise('rain')" id="btn-rain">▶</button>
+        </div>
+        <input type="range" min="0" max="100" value="60" oninput="setVolume('rain',this.value)">
+      </div>
+      <div class="noise-item">
+        <div class="noise-row">
+          <i class="fa-solid fa-wind"></i>
+          <span>白噪音</span>
+          <button onclick="toggleNoise('white')" id="btn-white">▶</button>
+        </div>
+        <input type="range" min="0" max="100" value="50" oninput="setVolume('white',this.value)">
+      </div>
+      <div class="noise-item">
+        <div class="noise-row">
+          <i class="fa-solid fa-leaf"></i>
+          <span>溪流</span>
+          <button onclick="toggleNoise('stream')" id="btn-stream">▶</button>
+        </div>
+        <input type="range" min="0" max="100" value="55" oninput="setVolume('stream',this.value)">
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Todo -->
+  <div class="card">
+    <h2><i class="fa-regular fa-square-check"></i> 待办清单</h2>
+    <div class="todo-input-row">
+      <input type="text" id="todoInput" placeholder="添加新任务..." onkeydown="if(event.key==='Enter')addTodo()">
+      <button onclick="addTodo()">+ 添加</button>
+    </div>
+    <ul class="todo-list" id="todoList"><li class="empty-todo">暂无待办事项</li></ul>
+  </div>
+
+</div>
+</div>
+
+<script>
+// ═══ Audio unlock ═══
+document.addEventListener('click',function unlock(){
+  if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();
+},{once:false});
+
+// ═══ Quotes ═══
+const quotes=[
+  "专注当下","宁静致远","每一步都算数","深呼吸，慢慢来",
+  "心静自然凉","少即是多","此刻即是最好的时刻","日拱一卒",
+  "不急，不躁","你所专注的，会放大","安静是最强大的力量"
+];
+function refreshQuote(){
+  const q=quotes[Math.floor(Math.random()*quotes.length)];
+  const el=document.getElementById('quote');
+  el.style.opacity=0;
+  setTimeout(()=>{el.textContent=q;el.style.opacity=1},300);
+}
+setInterval(refreshQuote,15000);refreshQuote();
+
+// ═══ Timer ═══
+let timerSec=25*60,timerRunning=!1,timerInterval=null;
+const timerEl=document.getElementById('timer');
+const btnStart=document.getElementById('btnStart');
+const customEl=document.getElementById('customMin');
+
+function fmt(s){const m=Math.floor(s/60),sec=s%60;return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0')}
+
+function updateTimer(){timerEl.textContent=fmt(timerSec)}
+
+function toggleTimer(){
+  if(timerRunning){pauseTimer();return}
+  startTimer();
+}
+
+function startTimer(){
+  timerRunning=!0;btnStart.textContent='⏸ 暂停';
+  timerInterval=setInterval(()=>{
+    if(timerSec<=0){timerEnd();return}
+    timerSec--;updateTimer();
+  },1000);
+}
+
+function pauseTimer(){
+  timerRunning=!1;btnStart.textContent='▶ 开始';
+  clearInterval(timerInterval);
+}
+
+function resetTimer(){
+  pauseTimer();timerSec=parseInt(customEl.value)*60;updateTimer();
+}
+
+function timerEnd(){
+  pauseTimer();
+  try{new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACAf39/f4B/f3+Af39/gH9/f4B/f3+Af39/gH9/f4B/f3+Af39/gH9/f4B/f3+Af39/gH9/f4B/f3+Af39/gH9/f4B/f3+Af39/gH9/f4B/f3+Af39/gH9/f4B/f3+Af39/gH9/f4B/f3+Af39/gH9/f4B/f3+Af39/gH9/f4B/f3+Af39/gH9/f4B/f3+Af39/gH9/f4B/f3+Af39/gH9/f4B/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/fA==').play().catch(()=>{})}catch(e){}
+  if(Notification.permission==='granted')new Notification('🍅 番茄钟结束！',{body:'专注时间结束，休息一下吧'});
+}
+
+document.querySelectorAll('.timer-preset button').forEach(b=>{
+  b.addEventListener('click',function(){
+    document.querySelectorAll('.timer-preset button').forEach(x=>x.classList.remove('active'));
+    this.classList.add('active');
+    const min=parseInt(this.dataset.min);
+    customEl.value=min;pauseTimer();timerSec=min*60;updateTimer();
+  });
+});
+
+customEl.addEventListener('change',function(){
+  document.querySelectorAll('.timer-preset button').forEach(x=>x.classList.remove('active'));
+  pauseTimer();timerSec=parseInt(this.value)*60;updateTimer();
+});
+
+if(Notification.permission==='default')Notification.requestPermission();
+
+// ═══ White Noise ═══
+let audioCtx=null;
+const noises={rain:null,white:null,stream:null};
+
+function getCtx(){
+  if(!audioCtx){
+    audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  }
+  return audioCtx;
+}
+
+function createNoise(type){
+  const ctx=getCtx();
+  if(ctx.state==='suspended')ctx.resume();
+  
+  const bufSize=2*ctx.sampleRate;
+  const buf=ctx.createBuffer(1,bufSize,ctx.sampleRate);
+  const data=buf.getChannelData(0);
+  
+  if(type==='rain'){
+    let last=0;
+    for(let i=0;i<data.length;i++){
+      const white=Math.random()*2-1;
+      data[i]=(last+(0.02*white))/1.02;
+      last=data[i];
+    }
+  }else if(type==='white'){
+    for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*0.4;
+  }else{
+    let last=0;
+    for(let i=0;i<data.length;i++){
+      const white=Math.random()*2-1;
+      data[i]=(last+(0.008*white))/1.008;
+      last=data[i];
+      data[i]*=0.6+0.4*Math.sin(i*0.0008);
+    }
+  }
+  
+  const src=ctx.createBufferSource();src.buffer=buf;src.loop=true;
+  const gain=ctx.createGain();gain.gain.value=0.8;
+  src.connect(gain);gain.connect(ctx.destination);
+  return{src,gain};
+}
+
+function toggleNoise(type){
+  const btn=document.getElementById('btn-'+type);
+  const ctx=getCtx();
+  
+  if(noises[type]){
+    try{noises[type].src.stop()}catch(e){}
+    noises[type]=null;
+    btn.classList.remove('playing');
+    btn.textContent='▶';
+  }else{
+    try{
+      const n=createNoise(type);
+      n.src.start();
+      noises[type]=n;
+      btn.classList.add('playing');
+      btn.textContent='⏸';
+      console.log('Playing:',type,ctx.state);
+    }catch(e){console.error('Noise error:',e)}
+  }
+}
+function setVolume(type,v){if(noises[type])noises[type].gain.gain.value=v/100}
+
+// ═══ Todo ═══
+let todos=JSON.parse(localStorage.getItem('studyTodos')||'[]');
+
+function saveTodos(){localStorage.setItem('studyTodos',JSON.stringify(todos));renderTodos()}
+
+function renderTodos(){
+  const el=document.getElementById('todoList');
+  if(!todos.length){el.innerHTML='<li class="empty-todo">暂无待办事项</li>';return}
+  el.innerHTML=todos.map((t,i)=>`
+    <li class="${t.done?'done':''}">
+      <input type="checkbox" ${t.done?'checked':''} onchange="toggleTodo(${i})">
+      <span>${esc(t.text)}</span>
+      <button onclick="delTodo(${i})" title="删除"><i class="fa-solid fa-xmark"></i></button>
+    </li>
+  `).join('');
+}
+
+function addTodo(){
+  const inp=document.getElementById('todoInput');
+  const text=inp.value.trim();if(!text)return;
+  todos.push({text,done:!1});inp.value='';saveTodos();
+}
+
+function toggleTodo(i){todos[i].done=!todos[i].done;saveTodos()}
+function delTodo(i){todos.splice(i,1);saveTodos()}
+
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+
+renderTodos();
+</script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>海边自习室</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--teal:#0D9488;--orange:#F97316;--text:#134E4A;--text-muted:#5B8A85}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Raleway',sans-serif;height:100vh;overflow:hidden}
+
+/* Fullscreen real photo */
+.bg{position:fixed;inset:0;z-index:0}
+.bg img{width:100%;height:100%;object-fit:cover}
+
+/* Gentle dark overlay for text readability */
+.bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.25) 0%,transparent 40%,rgba(0,0,0,.1) 100%)}
+
+/* Content layer */
+.content{position:relative;z-index:10;height:100vh;display:flex;flex-direction:column;align-items:center;padding:50px 20px 80px}
+
+.header{text-align:center;margin-bottom:40px}
+.header h1{font-family:'Lora',serif;font-size:44px;font-weight:700;color:#fff;letter-spacing:.04em;text-shadow:0 2px 24px rgba(0,0,0,.4)}
+.quote-bar{font-size:16px;color:rgba(255,255,255,.78);font-style:italic;min-height:24px;transition:opacity .5s;text-shadow:0 1px 8px rgba(0,0,0,.3)}
+
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:28px;max-width:1180px;width:100%;flex:1;align-items:start}
+
+.card{
+  background:rgba(240,253,250,.28);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-radius:16px;padding:34px 30px;
+  border:1px solid rgba(255,255,255,.3);
+  box-shadow:0 8px 32px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.35);
+  transition:all .35s;
+}
+.card:hover{box-shadow:0 12px 40px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.4);transform:translateY(-2px);background:rgba(240,253,250,.34)}
+.card h2{font-family:'Lora',serif;font-size:21px;font-weight:700;color:var(--text);margin-bottom:24px;display:flex;align-items:center;gap:10px}
+.card h2 svg{width:20px;height:20px;color:var(--teal);flex-shrink:0}
+
+.timer-display{font-size:68px;font-weight:300;text-align:center;letter-spacing:.06em;color:var(--text);margin-bottom:20px;font-variant-numeric:tabular-nums}
+.timer-preset{display:flex;gap:8px;justify-content:center;margin-bottom:16px}
+.timer-preset button{padding:8px 18px;border-radius:22px;border:1px solid rgba(13,148,136,.3);background:rgba(255,255,255,.3);cursor:pointer;font-size:13px;font-family:'Raleway',sans-serif;color:var(--text);transition:all .2s;font-weight:500}
+.timer-preset button:hover,.timer-preset button.active{background:var(--teal);color:#fff;border-color:var(--teal)}
+.timer-custom{display:flex;gap:8px;justify-content:center;margin-bottom:20px}
+.timer-custom input{width:54px;text-align:center;border:1px solid rgba(13,148,136,.3);border-radius:10px;padding:6px;font-family:'Raleway',sans-serif;font-size:14px;background:rgba(255,255,255,.3);color:var(--text);outline:none}
+.timer-custom input:focus{border-color:var(--teal)}
+.timer-custom span{font-size:13px;color:var(--text-muted);align-self:center}
+.timer-actions{display:flex;gap:12px;justify-content:center}
+.timer-actions button{width:46px;height:46px;border-radius:50%;border:1px solid rgba(13,148,136,.25);background:rgba(255,255,255,.35);cursor:pointer;color:var(--teal);transition:all .2s;display:flex;align-items:center;justify-content:center}
+.timer-actions button:hover{background:var(--teal);color:#fff;border-color:var(--teal)}
+.timer-actions .btn-main{width:auto;padding:0 30px;border-radius:23px;font-size:15px;font-weight:600;background:var(--teal);color:#fff;border-color:var(--teal)}
+.timer-actions .btn-main:hover{background:#0b7a72}
+
+.noise-row{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.noise-row span{font-size:15px;color:var(--text);font-weight:500}
+.noise-row button{border:none;background:none;cursor:pointer;color:var(--teal);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .2s;margin-left:auto}
+.noise-row button:hover{background:rgba(13,148,136,.12)}
+.noise-row button.playing{color:var(--orange)}
+input[type=range]{width:100%;height:5px;-webkit-appearance:none;background:rgba(13,148,136,.2);border-radius:3px;outline:none;margin:8px 0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--teal);cursor:pointer}
+.noise-desc{font-size:11px;color:var(--text-muted);text-align:center;margin-top:10px;opacity:.8}
+
+.todo-input-row{display:flex;gap:8px;margin-bottom:20px}
+.todo-input-row input{flex:1;border:1px solid rgba(13,148,136,.3);border-radius:10px;padding:11px 16px;font-family:'Raleway',sans-serif;font-size:14px;background:rgba(255,255,255,.3);color:var(--text);outline:none}
+.todo-input-row input:focus{border-color:var(--teal)}
+.todo-input-row input::placeholder{color:var(--text-muted)}
+.todo-input-row button{border-radius:10px;border:none;background:var(--teal);color:#fff;padding:11px 20px;cursor:pointer;font-family:'Raleway',sans-serif;font-size:14px;font-weight:600;transition:all .2s}
+.todo-input-row button:hover{background:#0b7a72}
+.todo-list{list-style:none;max-height:220px;overflow-y:auto}
+.todo-list li{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;transition:background .2s;font-size:14px;color:var(--text)}
+.todo-list li:hover{background:rgba(13,148,136,.06)}
+.todo-list li.done span{text-decoration:line-through;color:var(--text-muted)}
+.todo-list li input[type=checkbox]{accent-color:var(--teal);width:16px;height:16px;cursor:pointer}
+.todo-list li span{flex:1}
+.todo-list li button{border:none;background:none;cursor:pointer;color:rgba(180,130,110,.8);padding:4px 8px;border-radius:6px;display:flex}
+.todo-list li button:hover{background:rgba(180,130,110,.12);color:#a06050}
+.empty-todo{text-align:center;color:var(--text-muted);font-size:13px;padding:24px 0;opacity:.7}
+
+@media(max-width:960px){.grid{grid-template-columns:1fr;max-width:460px}.header h1{font-size:32px}.timer-display{font-size:48px}}
+@media(max-width:480px){.card{padding:24px 20px}.timer-display{font-size:38px}.header h1{font-size:26px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="bg">
+  <img src="https://plus.unsplash.com/premium_photo-1749903201235-2785a01a30fc?w=1920&q=80" alt=""
+       onerror="this.parentElement.style.background='linear-gradient(180deg,#2a4a5a,#1a3a4a,#4a7a8a,#2a5a6a,#1a3a4a)'">
+</div>
+
+<div class="content">
+  <div class="header">
+    <h1>海边自习室</h1>
+    <div class="quote-bar" id="quote">专注当下</div>
+  </div>
+
+  <div class="grid">
+    <!-- Timer -->
+    <div class="card">
+      <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>番茄钟</h2>
+      <div class="timer-display" id="timer">25:00</div>
+      <div class="timer-preset">
+        <button class="active" data-min="25">25分钟</button>
+        <button data-min="45">45分钟</button>
+        <button data-min="60">60分钟</button>
+      </div>
+      <div class="timer-custom"><input type="number" id="customMin" value="25" min="5" max="120"><span>分钟</span></div>
+      <div class="timer-actions">
+        <button class="btn-main" id="btnStart" onclick="toggleTimer()">开始</button>
+        <button onclick="resetTimer()" title="重置"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M1 4v6h6"/><path d="M3.5 16A9 9 0 102 12"/></svg></button>
+      </div>
+    </div>
+
+    <!-- White Noise -->
+    <div class="card">
+      <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.59 4.59A2 2 0 1111 8H2m10.59 11.41A2 2 0 1014 16H2m15.73-8.27A2.5 2.5 0 1119.5 12H2"/></svg>海风</h2>
+      <div class="noise-row">
+        <span>海风与海浪</span>
+        <button onclick="toggleNoise()" id="btn-noise"><svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><polygon points="6,3 20,12 6,21"/></svg></button>
+      </div>
+      <input type="range" min="0" max="100" value="60" oninput="setVolume(this.value)">
+      <div class="noise-desc">Web Audio 生成</div>
+    </div>
+
+    <!-- Todo -->
+    <div class="card">
+      <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>待办</h2>
+      <div class="todo-input-row">
+        <input type="text" id="todoInput" placeholder="添加新任务..." onkeydown="if(event.key==='Enter')addTodo()">
+        <button onclick="addTodo()">添加</button>
+      </div>
+      <ul class="todo-list" id="todoList"><li class="empty-todo">暂无待办事项</li></ul>
+    </div>
+  </div>
+</div>
+
+<script>
+const quotes=["专注当下","宁静致远","深呼吸，慢慢来","你可以的","少即是多","此刻即是最好的时刻","日拱一卒","不急不躁","大海带走所有杂念","安静是最强大的力量"];
+function refreshQuote(){const q=quotes[Math.floor(Math.random()*quotes.length)];const el=document.getElementById('quote');el.style.opacity=0;setTimeout(()=>{el.textContent=q;el.style.opacity=1},300)}
+setInterval(refreshQuote,15000);refreshQuote();
+
+let ts=25*60,tr=!1,ti=null;
+const tel=document.getElementById('timer'),bs=document.getElementById('btnStart'),ce=document.getElementById('customMin');
+function fm(s){const m=Math.floor(s/60),sc=s%60;return String(m).padStart(2,'0')+':'+String(sc).padStart(2,'0')}
+function ut(){tel.textContent=fm(ts)}
+function tt(){tr?pt():st()}
+function st(){tr=!0;bs.textContent='暂停';ti=setInterval(()=>{if(ts<=0){te();return}ts--;ut()},1000)}
+function pt(){tr=!1;bs.textContent='开始';clearInterval(ti)}
+function rt(){pt();ts=parseInt(ce.value)*60;ut()}
+function te(){pt();try{const c=gc();[880,660].forEach((f,i)=>{setTimeout(()=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=f;o.type='sine';g.gain.value=.25;o.start();g.gain.exponentialRampToValueAtTime(.01,c.currentTime+.5);o.stop(c.currentTime+.5)},i*600)})}catch(e){}if(Notification.permission==='granted')new Notification('休息一下吧',{body:'看看窗外的海'});setTimeout(()=>alert('🌊 休息一下吧！'),200)}
+document.querySelectorAll('.timer-preset button').forEach(b=>b.addEventListener('click',function(){document.querySelectorAll('.timer-preset button').forEach(x=>x.classList.remove('active'));this.classList.add('active');ce.value=this.dataset.min;pt();ts=parseInt(this.dataset.min)*60;ut()}));
+ce.addEventListener('change',function(){document.querySelectorAll('.timer-preset button').forEach(x=>x.classList.remove('active'));pt();ts=parseInt(this.value)*60;ut()});
+if(Notification.permission==='default')Notification.requestPermission();
+
+let ac=null,nn=null,np=!1;
+function gc(){if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();return ac}
+document.addEventListener('click',()=>{if(ac&&ac.state==='suspended')ac.resume()},{once:false});
+function cn(){const c=gc(),sr=c.sampleRate,bs=4*sr;const b1=c.createBuffer(1,bs,sr),d=b1.getChannelData(0);let l=0;for(let i=0;i<d.length;i++){d[i]=(l+.008*(Math.random()*2-1))/1.008;l=d[i]}const b2=c.createBuffer(1,bs,sr),d2=b2.getChannelData(0);for(let i=0;i<d2.length;i++)d2[i]=d[i]*(.6+.4*Math.sin(i*.0008))*(.7+.3*Math.sin(i*.0015));const s=c.createBufferSource();s.buffer=b2;s.loop=true;const wb=c.createBuffer(1,bs,sr),wd=wb.getChannelData(0);l=0;for(let i=0;i<wd.length;i++){wd[i]=(l+.02*(Math.random()*2-1))/1.02;l=wd[i]}const ws=c.createBufferSource();ws.buffer=wb;ws.loop=true;const wf=c.createBiquadFilter();wf.type='bandpass';wf.frequency.value=400;wf.Q.value=.3;const g=c.createGain();g.gain.value=.5;const wg=c.createGain();wg.gain.value=.25;const mg=c.createGain();mg.gain.value=.6;s.connect(g);g.connect(mg);ws.connect(wf);wf.connect(wg);wg.connect(mg);mg.connect(c.destination);return{s,ws,mg}}
+function tn(){const b=document.getElementById('btn-noise');if(np){if(nn){try{nn.s.stop()}catch(e){}try{nn.ws.stop()}catch(e){}nn=null}np=!1;b.classList.remove('playing');b.innerHTML='<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><polygon points="6,3 20,12 6,21"/></svg>'}else{const c=gc();if(c.state==='suspended')c.resume();nn=cn();nn.s.start();nn.ws.start();np=!0;b.classList.add('playing');b.innerHTML='<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><rect x="6" y="4" width="5" height="16" rx="1"/><rect x="14" y="4" width="5" height="16" rx="1"/></svg>'}}
+function sv(v){if(nn)nn.mg.gain.value=v/100}
+let tds=JSON.parse(localStorage.getItem('sea5')||'[]');
+function sts(){localStorage.setItem('sea5',JSON.stringify(tds));rts()}
+function rts(){const el=document.getElementById('todoList');if(!tds.length){el.innerHTML='<li class="empty-todo">暂无待办事项</li>';return}el.innerHTML=tds.map((t,i)=>`<li class="${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} onchange="ttd(${i})"><span>${es(t.text)}</span><button onclick="dt(${i})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></li>`).join('')}
+function atd(){const inp=document.getElementById('todoInput');const t=inp.value.trim();if(!t)return;tds.push({text:t,done:!1});inp.value='';sts()}
+function ttd(i){tds[i].done=!tds[i].done;sts()}
+function dt(i){tds.splice(i,1);sts()}
+function es(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+rts();
+</script>
+</body>
+</html>

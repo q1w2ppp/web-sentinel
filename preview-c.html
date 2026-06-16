@@ -1,0 +1,29 @@
+<!DOCTYPE html><html lang="zh"><head><meta charset="UTF-8"><title>Style C · Editorial Brut</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Space+Mono:wght@400;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#1a1815;display:flex;align-items:center;justify-content:center;height:100vh;overflow:hidden}
+.stage{width:1920px;height:1080px;position:relative;transform-origin:center;background:#f4efe4}
+.bar{position:absolute;top:0;left:0;width:8px;height:100%;background:#e85d3a}
+.content{position:absolute;inset:80px 80px 80px 120px;display:flex;flex-direction:column}
+.issue{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.2em;color:#e85d3a;text-transform:uppercase;margin-bottom:60px}
+.quote{font-family:'Playfair Display',serif;font-size:96px;font-weight:900;line-height:1.02;color:#1a1815;margin-bottom:40px;max-width:900px}
+.quote em{font-style:italic;color:#e85d3a}
+.rule{width:120px;height:3px;background:#1a1815;margin-bottom:40px}
+.body{font-family:'Space Mono',monospace;font-size:16px;line-height:1.8;color:rgba(26,24,21,.7);max-width:560px}
+.bottom{position:absolute;bottom:80px;left:120px;right:80px;display:flex;justify-content:space-between;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(26,24,21,.4)}
+</style></head><body>
+<div class="stage" id="stage">
+<div class="bar"></div>
+<div class="content">
+<div class="issue">Vol. 01 · June 2026</div>
+<div class="quote">把想法<em>说</em>出来，<br>比写出来更快。</div>
+<div class="rule"></div>
+<div class="body">描述即创造。AI 编程正在从"告诉计算机怎么做"变成"告诉计算机要什么"。这是一场从语法到意图的迁移。</div>
+</div>
+<div class="bottom"><span>SENTINEL · 网络哨兵</span><span>Vibe Coding Handbook</span></div>
+</div>
+<script>
+function rs(){const s=Math.min(innerWidth/1920,innerHeight/1080);document.getElementById('stage').style.transform=`scale(${s})`}
+window.addEventListener('resize',rs);rs()
+</script></body></html>

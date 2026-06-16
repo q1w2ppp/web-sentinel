@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>海边自习室</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;overflow:hidden;height:100vh;background:#0a1628}
+
+/* ═══ SCENE ═══ */
+.scene{position:fixed;inset:0;z-index:0}
+
+/* Sky */
+.sky{position:absolute;inset:0;background:linear-gradient(180deg,#7eb8da 0%,#b8d8e8 30%,#d4e8f0 55%,#c8dce8 75%,#a8c8d8 100%)}
+
+/* Ocean */
+.ocean{position:absolute;bottom:0;left:0;right:0;height:45%}
+.ocean-base{position:absolute;inset:0;background:linear-gradient(180deg,#4a8ab5 0%,#3a7098 30%,#2d5a7a 60%,#1e4060 100%)}
+.ocean-shimmer{position:absolute;inset:0;background:linear-gradient(180deg,transparent 0%,rgba(255,255,255,.03) 30%,rgba(255,255,255,.06) 50%,rgba(255,255,255,.03) 70%,transparent 100%);animation:shimmer 8s ease-in-out infinite}
+.ocean-sparkle{position:absolute;inset:0;background:radial-gradient(ellipse at 20% 40%,rgba(255,255,255,.12) 0%,transparent 50%),radial-gradient(ellipse at 60% 35%,rgba(255,255,255,.08) 0%,transparent 40%),radial-gradient(ellipse at 80% 45%,rgba(255,255,255,.1) 0%,transparent 45%),radial-gradient(ellipse at 35% 50%,rgba(255,255,255,.06) 0%,transparent 35%),radial-gradient(ellipse at 55% 42%,rgba(255,255,255,.07) 0%,transparent 30%);animation:sparkle 6s ease-in-out infinite alternate}
+.ocean-line{position:absolute;top:0;left:0;right:0;height:3px;background:rgba(255,255,255,.3);box-shadow:0 0 20px rgba(255,255,255,.15)}
+@keyframes shimmer{0%,100%{opacity:.6}50%{opacity:1}}
+@keyframes sparkle{0%{opacity:.5;transform:translateY(0)}100%{opacity:.9;transform:translateY(-4px)}}
+
+/* Window frame */
+.window-frame{position:absolute;top:5%;left:10%;right:10%;bottom:5%;border:12px solid #f5ebe0;border-radius:4px;box-shadow:inset 0 0 80px rgba(0,0,0,.15),0 0 0 4px #d4c4a8,0 0 0 16px #f5ebe0,0 0 0 20px #c4b494;z-index:2;overflow:hidden;pointer-events:none}
+
+/* Curtains */
+.curtain{position:absolute;top:5%;bottom:5%;width:18%;z-index:3;pointer-events:none;transform-origin:top center}
+.curtain-left{left:10%}
+.curtain-right{right:10%}
+.curtain-fabric{position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,250,240,.85) 0%,rgba(255,248,238,.7) 20%,rgba(252,245,232,.65) 50%,rgba(255,248,238,.7) 80%,rgba(255,250,240,.85) 100%);border-radius:0 0 2px 2px;animation:curtainSway 7s ease-in-out infinite}
+.curtain-right .curtain-fabric{animation-delay:3.5s}
+.curtain-fold{position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0%,transparent 8%,rgba(0,0,0,.02) 8%,rgba(0,0,0,.02) 10%,transparent 10%,transparent 18%);border-radius:0 0 2px 2px;animation:curtainSway 7s ease-in-out infinite}
+.curtain-right .curtain-fold{animation-delay:3.5s}
+@keyframes curtainSway{0%,100%{transform:skewX(0deg) scaleX(1)}25%{transform:skewX(1.5deg) scaleX(1.02)}50%{transform:skewX(0deg) scaleX(1)}75%{transform:skewX(-1.5deg) scaleX(1.02)}}
+.curtain-rod{position:absolute;top:4%;left:9%;right:9%;height:6px;background:linear-gradient(180deg,#d4c4a8,#c4b494);z-index:4;border-radius:3px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+
+/* Desk */
+.desk{position:absolute;bottom:0;left:0;right:0;height:22%;z-index:5;pointer-events:none}
+.desk-surface{position:absolute;bottom:0;left:5%;right:5%;height:40%;background:linear-gradient(180deg,#c4a882,#b89872);border-radius:4px 4px 0 0;box-shadow:0 -2px 12px rgba(0,0,0,.2)}
+.desk-front{position:absolute;bottom:0;left:5%;right:5%;height:60%;background:linear-gradient(180deg,#a08060,#8a6a4a)}
+
+/* Desk items */
+.desk-items{position:absolute;bottom:30%;left:8%;right:8%;height:50%;z-index:6;pointer-events:none;display:flex;align-items:flex-end;gap:30px;padding:0 20px}
+.book{width:36px;height:50px;background:#e8d5c0;border-radius:2px 2px 2px 2px;box-shadow:1px 1px 3px rgba(0,0,0,.3);position:relative}
+.book:nth-child(2){height:44px;background:#d4c4a8;margin-bottom:0}
+.book:nth-child(3){height:48px;background:#e0ccc0;margin-bottom:0;width:32px}.book:nth-child(3)::after{content:'';position:absolute;top:2px;left:4px;right:4px;height:2px;background:rgba(0,0,0,.1)}
+.lamp{position:relative;width:20px;height:55px;display:flex;flex-direction:column;align-items:center}
+.lamp-base{width:28px;height:6px;background:#5a4a3a;border-radius:3px}
+.lamp-pole{width:4px;height:30px;background:#6a5a4a}
+.lamp-shade{width:40px;height:18px;background:linear-gradient(180deg,#f0e8c0,#e8d8a0);clip-path:polygon(20% 0%,80% 0%,100% 100%,0% 100%);margin-top:-2px}
+.lamp-glow{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);width:60px;height:40px;background:radial-gradient(ellipse at center,rgba(255,240,200,.4) 0%,transparent 70%);animation:lampGlow 3s ease-in-out infinite}
+@keyframes lampGlow{0%,100%{opacity:.4;transform:translateX(-50%) scale(1)}50%{opacity:.7;transform:translateX(-50%) scale(1.1)}}
+.pen{width:3px;height:35px;background:#3a3a3a;border-radius:1px;transform:rotate(15deg);position:relative;margin-left:-10px}
+.pen::after{content:'';position:absolute;bottom:-3px;left:-1px;width:5px;height:3px;background:#1a1a1a;border-radius:1px 1px 0 0}
+
+/* ═══ CONTENT ═══ */
+.content{position:relative;z-index:10;height:100vh;display:flex;flex-direction:column;align-items:center;padding:30px 20px}
+
+.header{text-align:center;margin-bottom:24px}
+.header h1{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.3);letter-spacing:.04em}
+.quote-bar{font-size:14px;color:rgba(255,255,255,.8);font-style:italic;min-height:20px;transition:opacity .4s;text-shadow:0 1px 4px rgba(0,0,0,.3)}
+
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;max-width:1100px;width:100%;margin:0 auto;flex:1;align-items:start}
+
+.card{background:rgba(255,255,250,.35);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:24px;padding:28px 24px;box-shadow:0 4px 30px rgba(0,0,0,.1);border:1px solid rgba(255,255,255,.4);transition:transform .2s,box-shadow .2s}
+.card:hover{box-shadow:0 8px 40px rgba(0,0,0,.15)}
+.card h2{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#2c3e3a;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.card h2 i{font-size:16px;color:#5a9a8a}
+
+.timer-display{font-size:60px;font-weight:300;text-align:center;letter-spacing:.06em;color:#1a3a2a;margin-bottom:16px;font-variant-numeric:tabular-nums}
+.timer-preset{display:flex;gap:6px;justify-content:center;margin-bottom:12px;flex-wrap:wrap}
+.timer-preset button{padding:6px 14px;border-radius:20px;border:1px solid rgba(100,140,120,.4);background:rgba(255,255,255,.3);cursor:pointer;font-size:12px;font-family:'Inter',sans-serif;color:#3a5a4a;transition:all .15s}
+.timer-preset button:hover,.timer-preset button.active{background:#5a9a8a;color:#fff;border-color:#5a9a8a}
+.timer-custom{display:flex;gap:6px;justify-content:center;margin-bottom:16px}
+.timer-custom input{width:50px;text-align:center;border:1px solid rgba(100,140,120,.4);border-radius:12px;padding:5px;font-family:'Inter',sans-serif;font-size:13px;background:rgba(255,255,255,.3);color:#2c3e3a;outline:none}
+.timer-custom input:focus{border-color:#5a9a8a}
+.timer-custom span{font-size:12px;color:#5a7a6a;align-self:center}
+.timer-actions{display:flex;gap:8px;justify-content:center}
+.timer-actions button{width:42px;height:42px;border-radius:50%;border:1px solid rgba(100,140,120,.3);background:rgba(255,255,255,.4);cursor:pointer;font-size:16px;color:#5a7a6a;transition:all .15s}
+.timer-actions button:hover{background:#5a9a8a;color:#fff;border-color:#5a9a8a}
+.timer-actions .btn-main{width:auto;padding:0 24px;border-radius:21px;font-size:14px;font-weight:500}
+
+.noise-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.noise-row i{font-size:20px;color:#5a9a8a;width:24px;text-align:center}
+.noise-row span{font-size:14px;color:#3a5a4a}
+.noise-row button{border:none;background:none;cursor:pointer;font-size:16px;color:#5a9a8a;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .15s;margin-left:auto}
+.noise-row button:hover{background:rgba(90,154,138,.15)}
+.noise-row button.playing{color:#4a8a7a;background:rgba(90,154,138,.2)}
+.noise-item input[type=range]{width:100%;height:4px;-webkit-appearance:none;background:rgba(90,154,138,.3);border-radius:2px;outline:none;margin-bottom:8px}
+.noise-item input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#5a9a8a;cursor:pointer}
+.noise-desc{font-size:11px;color:#6a8a7a;text-align:center;margin-top:6px;font-style:italic}
+
+.todo-input-row{display:flex;gap:8px;margin-bottom:16px}
+.todo-input-row input{flex:1;border:1px solid rgba(100,140,120,.4);border-radius:14px;padding:9px 14px;font-family:'Inter',sans-serif;font-size:13px;background:rgba(255,255,255,.3);color:#2c3e3a;outline:none}
+.todo-input-row input:focus{border-color:#5a9a8a}
+.todo-input-row button{border-radius:14px;border:none;background:#5a9a8a;color:#fff;padding:9px 16px;cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;transition:all .15s}
+.todo-input-row button:hover{background:#4a8a7a}
+.todo-list{list-style:none;max-height:200px;overflow-y:auto}
+.todo-list li{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;transition:background .15s;font-size:13px}
+.todo-list li:hover{background:rgba(255,255,255,.2)}
+.todo-list li.done span{text-decoration:line-through;color:#8aaa9a}
+.todo-list li input[type=checkbox]{accent-color:#5a9a8a;width:15px;height:15px;cursor:pointer}
+.todo-list li span{flex:1;color:#2c4a3a}
+.todo-list li button{border:none;background:none;cursor:pointer;color:#c4a0a0;font-size:12px;padding:3px 6px;border-radius:6px}
+.todo-list li button:hover{background:rgba(200,160,160,.15);color:#a07070}
+.empty-todo{text-align:center;color:#8aaa9a;font-size:12px;padding:20px 0}
+
+@media(max-width:960px){
+  .grid{grid-template-columns:1fr;max-width:420px}
+  .header h1{font-size:28px}
+  .timer-display{font-size:46px}
+  .curtain{width:14%}.curtain-left{left:12%}.curtain-right{right:12%}
+  .window-frame{top:8%;left:12%;right:12%;bottom:8%;border-width:8px}
+}
+@media(max-width:480px){
+  .card{padding:20px 16px}
+  .timer-display{font-size:36px}
+  .curtain{width:10%}.curtain-left{left:14%}.curtain-right{right:14%}
+  .desk-items{gap:16px}
+  .book{width:24px;height:36px}.book:nth-child(2){height:30px}.book:nth-child(3){height:34px}
+  .lamp{width:16px;height:40px}.lamp-shade{width:30px;height:14px}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ SCENE ═══ -->
+<div class="scene">
+  <div class="sky"></div>
+  <div class="ocean">
+    <div class="ocean-base"></div>
+    <div class="ocean-shimmer"></div>
+    <div class="ocean-sparkle"></div>
+    <div class="ocean-line"></div>
+  </div>
+  <div class="window-frame"></div>
+  <div class="curtain-rod"></div>
+  <div class="curtain curtain-left">
+    <div class="curtain-fabric"></div>
+    <div class="curtain-fold"></div>
+  </div>
+  <div class="curtain curtain-right">
+    <div class="curtain-fabric"></div>
+    <div class="curtain-fold"></div>
+  </div>
+  <div class="desk">
+    <div class="desk-surface"></div>
+    <div class="desk-front"></div>
+  </div>
+  <div class="desk-items">
+    <div class="book"></div><div class="book"></div><div class="book"></div>
+    <div class="pen"></div>
+    <div class="lamp"><div class="lamp-shade"></div><div class="lamp-pole"></div><div class="lamp-base"></div><div class="lamp-glow"></div></div>
+  </div>
+</div>
+
+<!-- ═══ CONTENT ═══ -->
+<div class="content">
+  <div class="header">
+    <h1>🌊 海边自习室</h1>
+    <div class="quote-bar" id="quote">专注当下</div>
+  </div>
+  <div class="grid">
+    <!-- Timer -->
+    <div class="card">
+      <h2><i class="fa-regular fa-clock"></i>番茄钟</h2>
+      <div class="timer-display" id="timer">25:00</div>
+      <div class="timer-preset">
+        <button class="active" data-min="25">25分钟</button>
+        <button data-min="45">45分钟</button>
+        <button data-min="60">60分钟</button>
+      </div>
+      <div class="timer-custom">
+        <input type="number" id="customMin" value="25" min="5" max="120"><span>分钟</span>
+      </div>
+      <div class="timer-actions">
+        <button class="btn-main" id="btnStart" onclick="toggleTimer()">▶ 开始</button>
+        <button onclick="resetTimer()" title="重置"><i class="fa-solid fa-arrow-rotate-left"></i></button>
+      </div>
+    </div>
+    <!-- White Noise -->
+    <div class="card">
+      <h2><i class="fa-solid fa-wind"></i>海风</h2>
+      <div class="noise-item">
+        <div class="noise-row">
+          <span>海风 + 海浪声</span>
+          <button onclick="toggleNoise()" id="btn-noise">▶</button>
+        </div>
+        <input type="range" min="0" max="100" value="60" oninput="setVolume(this.value)">
+      </div>
+      <div class="noise-desc">Web Audio 生成 · 不依赖网络</div>
+    </div>
+    <!-- Todo -->
+    <div class="card">
+      <h2><i class="fa-regular fa-square-check"></i>待办</h2>
+      <div class="todo-input-row">
+        <input type="text" id="todoInput" placeholder="添加新任务..." onkeydown="if(event.key==='Enter')addTodo()">
+        <button onclick="addTodo()">+ 添加</button>
+      </div>
+      <ul class="todo-list" id="todoList"><li class="empty-todo">暂无待办事项</li></ul>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══ Quotes ═══
+const quotes=["专注当下","宁静致远","深呼吸，慢慢来","你可以的","心静自然凉","少即是多","此刻即是最好的时刻","日拱一卒","不急，不躁","大海会带走所有杂念","安静是最强大的力量","每一步都算数"];
+function refreshQuote(){const q=quotes[Math.floor(Math.random()*quotes.length)];const el=document.getElementById('quote');el.style.opacity=0;setTimeout(()=>{el.textContent=q;el.style.opacity=1},300)}
+setInterval(refreshQuote,15000);refreshQuote();
+
+// ═══ Timer ═══
+let timerSec=25*60,timerRunning=!1,timerInterval=null;
+const timerEl=document.getElementById('timer'),btnStart=document.getElementById('btnStart'),customEl=document.getElementById('customMin');
+function fmt(s){const m=Math.floor(s/60),sec=s%60;return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0')}
+function updateTimer(){timerEl.textContent=fmt(timerSec)}
+function toggleTimer(){timerRunning?pauseTimer():startTimer()}
+function startTimer(){timerRunning=!0;btnStart.textContent='⏸ 暂停';timerInterval=setInterval(()=>{if(timerSec<=0){timerEnd();return}timerSec--;updateTimer()},1000)}
+function pauseTimer(){timerRunning=!1;btnStart.textContent='▶ 开始';clearInterval(timerInterval)}
+function resetTimer(){pauseTimer();timerSec=parseInt(customEl.value)*60;updateTimer()}
+function timerEnd(){pauseTimer();try{const c=getCtx();const o=c.createOscillator();const g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=880;o.type='sine';g.gain.value=.3;o.start();g.gain.exponentialRampToValueAtTime(.01,c.currentTime+.6);o.stop(c.currentTime+.6);setTimeout(()=>{const o2=c.createOscillator();const g2=c.createGain();o2.connect(g2);g2.connect(c.destination);o2.frequency.value=660;o2.type='sine';g2.gain.value=.3;o2.start();g2.gain.exponentialRampToValueAtTime(.01,c.currentTime+.6);o2.stop(c.currentTime+.6)},700)}catch(e){}if(Notification.permission==='granted')new Notification('🍅 休息一下吧',{body:'专注时间结束，看看窗外的大海'});alert('🌊 休息一下吧！看看窗外的大海。')}
+document.querySelectorAll('.timer-preset button').forEach(b=>{b.addEventListener('click',function(){document.querySelectorAll('.timer-preset button').forEach(x=>x.classList.remove('active'));this.classList.add('active');const min=parseInt(this.dataset.min);customEl.value=min;pauseTimer();timerSec=min*60;updateTimer()})});
+customEl.addEventListener('change',function(){document.querySelectorAll('.timer-preset button').forEach(x=>x.classList.remove('active'));pauseTimer();timerSec=parseInt(this.value)*60;updateTimer()});
+if(Notification.permission==='default')Notification.requestPermission();
+
+// ═══ White Noise: Ocean Wind ═══
+let audioCtx=null,noiseNode=null,noisePlaying=!1,noiseGain=null;
+function getCtx(){if(!audioCtx){audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume()}return audioCtx}
+document.addEventListener('click',()=>{if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume()},{once:false});
+
+function createOceanNoise(){
+  const ctx=getCtx();
+  const sr=ctx.sampleRate,bufSize=4*sr;
+  const buf=ctx.createBuffer(1,bufSize,sr);
+  const d=buf.getChannelData(0);
+  // Brown noise (low freq emphasis) as base - sounds like distant waves
+  let last=0;
+  for(let i=0;i<d.length;i++){const w=Math.random()*2-1;d[i]=(last+.008*w)/1.008;last=d[i]}
+  // Layer: slow amplitude modulation for wave rhythm
+  const buf2=ctx.createBuffer(1,bufSize,sr);
+  const d2=buf2.getChannelData(0);
+  for(let i=0;i<d2.length;i++)d2[i]=d[i]*(.6+.4*Math.sin(i*.0008))*(.7+.3*Math.sin(i*.0015));
+  
+  const src=ctx.createBufferSource();src.buffer=buf2;src.loop=true;
+  // Wind layer: higher freq filtered noise
+  const windBuf=ctx.createBuffer(1,bufSize,sr);
+  const wd=windBuf.getChannelData(0);
+  let wlast=0;
+  for(let i=0;i<wd.length;i++){const w=Math.random()*2-1;wd[i]=(wlast+.02*w)/1.02;wlast=wd[i]}
+  const wsrc=ctx.createBufferSource();wsrc.buffer=windBuf;wsrc.loop=true;
+  const wfilter=ctx.createBiquadFilter();wfilter.type='bandpass';wfilter.frequency.value=400;wfilter.Q.value=.3;
+  
+  const gain=ctx.createGain();gain.gain.value=.5;
+  const wgain=ctx.createGain();wgain.gain.value=.25;
+  const masterGain=ctx.createGain();masterGain.gain.value=.6;
+  
+  src.connect(gain);gain.connect(masterGain);
+  wsrc.connect(wfilter);wfilter.connect(wgain);wgain.connect(masterGain);
+  masterGain.connect(ctx.destination);
+  
+  return{src,wsrc,masterGain};
+}
+
+function toggleNoise(){
+  const btn=document.getElementById('btn-noise');
+  if(noisePlaying){
+    if(noiseNode){try{noiseNode.src.stop()}catch(e){}try{noiseNode.wsrc.stop()}catch(e){}noiseNode=null}
+    noisePlaying=!1;btn.classList.remove('playing');btn.textContent='▶';
+  }else{
+    const ctx=getCtx();if(ctx.state==='suspended')ctx.resume();
+    noiseNode=createOceanNoise();
+    noiseNode.src.start();noiseNode.wsrc.start();
+    noisePlaying=!0;btn.classList.add('playing');btn.textContent='⏸';
+  }
+}
+function setVolume(v){if(noiseNode)noiseNode.masterGain.gain.value=v/100}
+
+// ═══ Todo ═══
+let todos=JSON.parse(localStorage.getItem('seaTodos')||'[]');
+function saveTodos(){localStorage.setItem('seaTodos',JSON.stringify(todos));renderTodos()}
+function renderTodos(){const el=document.getElementById('todoList');if(!todos.length){el.innerHTML='<li class="empty-todo">暂无待办事项</li>';return}el.innerHTML=todos.map((t,i)=>`<li class="${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} onchange="toggleTodo(${i})"><span>${esc(t.text)}</span><button onclick="delTodo(${i})" title="删除"><i class="fa-solid fa-xmark"></i></button></li>`).join('')}
+function addTodo(){const inp=document.getElementById('todoInput');const text=inp.value.trim();if(!text)return;todos.push({text,done:!1});inp.value='';saveTodos()}
+function toggleTodo(i){todos[i].done=!todos[i].done;saveTodos()}
+function delTodo(i){todos.splice(i,1);saveTodos()}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+renderTodos();
+</script>
+</body>
+</html>

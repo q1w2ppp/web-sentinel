@@ -1,0 +1,13 @@
+{
+  "name": "客户跟进记录本",
+  "short_name": "CRM",
+  "start_url": "/web-sentinel/crm.html",
+  "display": "standalone",
+  "background_color": "#f5f6f8",
+  "theme_color": "#6CB4EE",
+  "icons": [{
+    "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%236CB4EE'/%3E%3Ctext x='50' y='65' font-size='40' text-anchor='middle' fill='%23fff' font-family='sans-serif'%3E📋%3C/text%3E%3C/svg%3E",
+    "sizes": "192x192",
+    "type": "image/svg+xml"
+  }]
+}

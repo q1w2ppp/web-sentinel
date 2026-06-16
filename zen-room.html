@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>自习室</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--accent:#d97706}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Raleway',sans-serif;height:100vh;overflow:hidden;background:#1a1a1a;transition:filter 1s}
+body.morning{filter:brightness(1.05) saturate(1.1) sepia(.1)}
+body.noon{filter:brightness(1) saturate(1)}
+body.evening{filter:brightness(.9) saturate(.9) sepia(.2)}
+body.night{filter:brightness(.75) saturate(.8)}
+.bg-video{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
+
+/* Weather overlay */
+.weather{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.weather canvas{position:absolute;inset:0}
+
+/* Edge glow */
+.edge-glow{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 80% 20%,rgba(255,200,140,.06) 0%,transparent 50%),radial-gradient(ellipse at 20% 80%,rgba(255,180,100,.04) 0%,transparent 40%)}
+
+/* Corner plant */
+.plant{position:fixed;bottom:60px;right:20px;z-index:5;pointer-events:none;font-size:48px;opacity:.35;animation:plantSway 4s ease-in-out infinite}
+@keyframes plantSway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+
+/* Top bar */
+.top{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:20px 28px;pointer-events:none}
+.top-time{font-family:'Lora',serif;font-size:32px;font-weight:600;color:rgba(255,255,255,.85);text-shadow:0 2px 12px rgba(0,0,0,.3);display:flex;align-items:center;gap:12px}
+.top-greeting{font-size:15px;font-weight:400;color:rgba(255,255,255,.6);font-family:'Raleway',sans-serif}
+
+.progress-ring{width:56px;height:56px;position:relative}
+.progress-ring svg{transform:rotate(-90deg)}
+.progress-ring .bg{fill:none;stroke:rgba(255,255,255,.1);stroke-width:3}
+.progress-ring .fg{fill:none;stroke:var(--accent);stroke-width:3;stroke-linecap:round;transition:stroke-dashoffset .5s}
+.progress-ring .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff}
+
+/* Sound viz */
+.viz{position:fixed;bottom:52px;left:50%;transform:translateX(-50%);z-index:14;display:flex;gap:2px;height:20px;align-items:flex-end;pointer-events:none;opacity:0;transition:opacity .3s}
+.viz.on{opacity:1}
+.viz-bar{width:3px;background:rgba(255,255,255,.4);border-radius:1px;animation:vizPulse 1s ease-in-out infinite}
+@keyframes vizPulse{0%,100%{height:4px}50%{height:16px}}
+
+/* Online counter */
+.online{position:fixed;bottom:56px;left:50%;transform:translateX(-50%);z-index:14;font-size:10px;color:rgba(255,255,255,.35);pointer-events:none}
+
+/* Dock */
+.dock-area{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:15;display:flex;gap:6px;padding:8px 16px;background:rgba(255,255,255,.08);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:20px;border:1px solid rgba(255,255,255,.12);transition:opacity .3s}
+.dock-btn{width:38px;height:38px;border-radius:14px;border:none;background:rgba(255,255,255,.06);cursor:pointer;color:#fff;font-size:18px;transition:all .2s;display:flex;align-items:center;justify-content:center;position:relative}
+.dock-btn:hover{background:rgba(255,255,255,.18);transform:translateY(-4px)}
+.dock-btn.active{background:rgba(255,255,255,.22);transform:translateY(-4px)}
+.dock-btn .tip{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-size:9px;color:rgba(255,255,255,.6);white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none}
+.dock-btn:hover .tip{opacity:1}
+.dock-sep{width:1px;background:rgba(255,255,255,.1);margin:6px 2px}
+
+/* Scene dots in dock */
+.scene-dots{display:flex;gap:4px;align-items:center;margin:0 4px}
+.scene-dot{width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.2);cursor:pointer;transition:all .3s;background-size:cover;background-position:center;flex-shrink:0}
+.scene-dot:hover{transform:scale(1.2);border-color:#fff}
+.scene-dot.active{border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.4)}
+
+/* Popup */
+.popup{position:fixed;z-index:25;width:260px;background:rgba(255,255,255,.1);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border-radius:16px;border:1px solid rgba(255,255,255,.18);border-top:1px solid rgba(255,255,255,.3);box-shadow:0 8px 36px rgba(0,0,0,.2);padding:20px;opacity:0;pointer-events:none;transform:translateY(10px);transition:opacity .25s,transform .25s;color:#fff}
+.popup.open{opacity:1;pointer-events:auto;transform:translateY(0)}
+.popup h3{font-family:'Lora',serif;font-size:15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.popup .drag-handle{position:absolute;top:6px;left:50%;transform:translateX(-50%);width:28px;height:3px;border-radius:2px;background:rgba(255,255,255,.25);cursor:grab}
+
+.popup-timer .time{font-size:48px;font-weight:300;text-align:center;letter-spacing:.06em;font-variant-numeric:tabular-nums;margin:0 0 8px}
+.popup-timer .presets{display:flex;gap:4px;justify-content:center;margin-bottom:10px}
+.popup-timer .presets button{padding:3px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);cursor:pointer;font-size:11px;font-family:'Raleway',sans-serif;color:#fff;transition:all .2s}
+.popup-timer .presets button:hover,.popup-timer .presets button.on{background:var(--accent);border-color:var(--accent)}
+.popup-timer .btns{display:flex;gap:6px;justify-content:center}
+.popup-timer .btns button{width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);cursor:pointer;color:#fff;transition:all .2s;display:flex;align-items:center;justify-content:center;font-size:13px}
+.popup-timer .btns button:hover{background:var(--accent);border-color:var(--accent)}
+.popup-timer .btns .play{width:auto;padding:0 16px;border-radius:16px;font-size:12px;font-weight:600;background:var(--accent);border-color:var(--accent)}
+
+.popup-noise input[type=range]{width:100%;height:3px;-webkit-appearance:none;background:rgba(255,255,255,.15);border-radius:2px;outline:none;margin:8px 0}
+.popup-noise input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--accent);cursor:pointer}
+.popup-noise .row{display:flex;align-items:center;gap:8px}
+.popup-noise .row span{font-size:12px}
+.popup-noise .row button{border:none;background:none;cursor:pointer;color:#fff;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .2s;margin-left:auto}
+.popup-noise .row button:hover{background:rgba(255,255,255,.12)}
+
+.popup-todo input[type=text]{width:100%;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 10px;font-family:'Raleway',sans-serif;font-size:12px;background:rgba(255,255,255,.06);color:#fff;outline:none;margin-bottom:8px}
+.popup-todo input::placeholder{color:rgba(255,255,255,.35)}
+.popup-todo ul{list-style:none;max-height:140px;overflow-y:auto}
+.popup-todo li{display:flex;align-items:center;gap:6px;padding:5px 6px;border-radius:6px;transition:background .2s;font-size:11px}
+.popup-todo li:hover{background:rgba(255,255,255,.06)}
+.popup-todo li.done span{text-decoration:line-through;opacity:.4}
+.popup-todo li input[type=checkbox]{accent-color:var(--accent);width:13px;height:13px;cursor:pointer}
+.popup-todo li span{flex:1}
+.popup-todo li button{border:none;background:none;cursor:pointer;opacity:.4;color:#fff;padding:1px 4px;border-radius:3px}
+.popup-todo li button:hover{opacity:1;background:rgba(255,255,255,.08)}
+
+.popup-note textarea{width:100%;height:80px;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:8px;font-family:'Raleway',sans-serif;font-size:12px;background:rgba(255,255,255,.06);color:#fff;outline:none;resize:none}
+
+popup-stats .sg{display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:center}
+popup-stats .sn{font-size:24px;font-weight:600}
+popup-stats .sl{font-size:9px;opacity:.5;letter-spacing:.06em;text-transform:uppercase}
+
+.popup-links a{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;color:rgba(255,255,255,.7);text-decoration:none;font-size:12px;transition:all .2s}
+.popup-links a:hover{background:rgba(255,255,255,.1);color:#fff}
+
+.kbd{position:fixed;bottom:70px;right:20px;z-index:14;font-size:9px;color:rgba(255,255,255,.2);pointer-events:none;opacity:0;transition:opacity .3s}
+body:hover .kbd{opacity:1}
+
+/* Achievement toast */
+.achieve{position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:30;background:rgba(0,0,0,.75);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;padding:10px 20px;border-radius:12px;font-size:13px;border:1px solid rgba(255,255,255,.15);opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;transform:translateX(-50%) translateY(-10px)}
+.achieve.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media(max-width:768px){.popup{width:220px;padding:16px}.dock-btn{width:32px;height:32px;font-size:16px}.kbd{display:none}}
+@media(max-width:480px){.popup{width:190px;padding:12px}.dock-area{gap:3px;padding:6px 10px;border-radius:16px}.dock-btn{width:28px;height:28px;font-size:14px;border-radius:10px}.top{padding:14px 16px}.top-time{font-size:24px}}
+</style>
+</head>
+<body class="morning">
+
+<video class="bg-video" id="bgVideo" src="bg.mp4" autoplay loop muted playsinline></video>
+<div class="weather"><canvas id="weatherCanvas"></canvas></div>
+<div class="edge-glow"></div>
+<div class="plant">🪴</div>
+
+<div class="top">
+  <div><span class="top-time" id="timeDisplay">00:00</span><span class="top-greeting" id="greeting"></span></div>
+  <div class="progress-ring"><svg viewBox="0 0 56 56"><circle class="bg" cx="28" cy="28" r="24"/><circle class="fg" id="ring" cx="28" cy="28" r="24" stroke-dasharray="150.8" stroke-dashoffset="150.8"/></svg><div class="num" id="ringNum">0</div></div>
+</div>
+
+<div class="viz" id="viz"><div class="viz-bar" style="animation-delay:0s"></div><div class="viz-bar" style="animation-delay:.1s"></div><div class="viz-bar" style="animation-delay:.15s"></div><div class="viz-bar" style="animation-delay:.25s"></div><div class="viz-bar" style="animation-delay:.05s"></div><div class="viz-bar" style="animation-delay:.3s"></div></div>
+<div class="online" id="online">此刻 2,847 人在自习</div>
+
+<div class="dock-area" id="dock">
+  <div class="scene-dots" id="sceneDots"></div>
+  <div class="dock-sep"></div>
+  <button class="dock-btn active" data-panel="timer" onclick="tP('timer')" title="番茄钟">⏱<span class="tip">番茄钟</span></button>
+  <button class="dock-btn" data-panel="noise" onclick="tP('noise')" title="白噪音">🎵<span class="tip">白噪音</span></button>
+  <button class="dock-btn" data-panel="todo" onclick="tP('todo')" title="待办">✅<span class="tip">待办</span></button>
+  <button class="dock-btn" data-panel="note" onclick="tP('note')" title="便签">📝<span class="tip">便签</span></button>
+  <div class="dock-sep"></div>
+  <button class="dock-btn" data-panel="stats" onclick="tP('stats')" title="统计">📊<span class="tip">统计</span></button>
+  <button class="dock-btn" data-panel="links" onclick="tP('links')" title="快捷">🔗<span class="tip">快捷</span></button>
+</div>
+
+<div class="popup" id="panel-timer"><div class="drag-handle" onmousedown="sD(event,'timer')"></div><div class="popup-timer"><h3>⏱ 番茄钟</h3><div class="time" id="timer">25:00</div><div class="presets"><button class="on" data-min="25">25</button><button data-min="45">45</button><button data-min="60">60</button><button data-min="0" onclick="cT()">+</button></div><div class="btns"><button class="play" id="btnStart" onclick="tT()">开始</button><button onclick="rT()">↺</button></div></div></div>
+
+<div class="popup" id="panel-noise"><div class="drag-handle" onmousedown="sD(event,'noise')"></div><div class="popup-noise"><h3>🎵 <span id="nl">雨声</span></h3><div class="row"><span id="nd">窗外雨声</span><button onclick="tN()" id="bn">▶</button></div><input type="range" min="0" max="100" value="60" oninput="sV(this.value)"></div></div>
+
+<div class="popup" id="panel-todo"><div class="drag-handle" onmousedown="sD(event,'todo')"></div><div class="popup-todo"><h3>✅ 待办</h3><input type="text" id="ti" placeholder="添加任务..." onkeydown="if(event.key==='Enter')aT()"><ul id="tl"><li style="text-align:center;opacity:.35;font-size:11px;padding:10px">暂无待办</li></ul></div></div>
+
+<div class="popup" id="panel-note"><div class="drag-handle" onmousedown="sD(event,'note')"></div><div class="popup-note"><h3>📝 便签</h3><textarea id="noteArea" placeholder="随手记..." oninput="sN()"></textarea></div></div>
+
+<div class="popup" id="panel-stats"><div class="drag-handle" onmousedown="sD(event,'stats')"></div><div class="popup-stats"><h3>📊 统计</h3><div class="sg"><div class="s-item"><div class="sn" id="st">0</div><div class="sl">今日分钟</div></div><div class="s-item"><div class="sn" id="ss">0</div><div class="sl">连续天</div></div><div class="s-item"><div class="sn" id="sw">0</div><div class="sl">本周</div></div><div class="s-item"><div class="sn" id="sa">0</div><div class="sl">总计时</div></div></div></div></div>
+
+<div class="popup" id="panel-links"><div class="drag-handle" onmousedown="sD(event,'links')"></div><div class="popup-links"><h3>🔗 常用</h3><a href="https://github.com" target="_blank">🐙 GitHub</a><a href="https://v2ex.com" target="_blank">💬 V2EX</a><a href="https://news.ycombinator.com" target="_blank">🔸 HN</a></div></div>
+
+<div class="achieve" id="ach"></div>
+<div class="kbd">1-7 切换 · Esc 关闭 · ← → 场景</div>
+
+<script>
+// ═══ Panels ═══
+const P={timer:dp('panel-timer'),noise:dp('panel-noise'),todo:dp('panel-todo'),note:dp('panel-note'),stats:dp('panel-stats'),links:dp('panel-links')};
+let OP=null;
+function dp(id){return document.getElementById(id)}
+function tP(n){if(OP===n){cP();return}if(OP){P[OP].classList.remove('open');document.querySelector(`[data-panel="${OP}"]`)?.classList.remove('active')}OP=n;P[n].classList.add('open');document.querySelector(`[data-panel="${n}"]`)?.classList.add('active');pP(n);if(n==='stats')uS();if(n==='note')dp('noteArea').value=localStorage.getItem('note')||''}
+function cP(){if(OP){P[OP].classList.remove('open');document.querySelector(`[data-panel="${OP}"]`)?.classList.remove('active');OP=null}}
+function pP(n){const b=document.querySelector(`[data-panel="${n}"]`),p=P[n];if(!b)return;const s=JSON.parse(localStorage.getItem(`pp4_${n}`)||'null');if(s){p.style.left=s.l;p.style.top=s.t;p.style.bottom='auto';return}p.style.left=Math.max(10,Math.min(innerWidth-270,b.getBoundingClientRect().left-50))+'px';p.style.bottom=(innerHeight-b.getBoundingClientRect().top+14)+'px';p.style.top='auto'}
+function sD(e,n){e.preventDefault();const p=P[n],sx=e.clientX,sy=e.clientY,pl=parseInt(p.style.left)||p.getBoundingClientRect().left,pt=parseInt(p.style.top)||p.getBoundingClientRect().top;function m(ev){p.style.left=Math.max(0,Math.min(innerWidth-260,pl+ev.clientX-sx))+'px';p.style.top=Math.max(0,Math.min(innerHeight-200,pt+ev.clientY-sy))+'px';p.style.bottom='auto'}function u(){document.removeEventListener('mousemove',m);document.removeEventListener('mouseup',u);localStorage.setItem(`pp4_${n}`,JSON.stringify({l:p.style.left,t:p.style.top}))}document.addEventListener('mousemove',m);document.addEventListener('mouseup',u)}
+
+// ═══ Time greeting ═══
+function uT(){const n=new Date(),h=n.getHours(),m=n.getMinutes();dp('timeDisplay').textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;const g=dp('greeting'),b=document.body;b.className='';if(h<7){g.textContent='夜深了';b.classList.add('night')}else if(h<11){g.textContent='早上好';b.classList.add('morning')}else if(h<14){g.textContent='中午好';b.classList.add('noon')}else if(h<18){g.textContent='下午好';b.classList.add('evening')}else{g.textContent='晚上好';b.classList.add('night')}}setInterval(uT,30000);uT();
+
+// ═══ Timer ═══
+let ts=25*60,tr=!1,ti=null;const te=dp('timer'),bs=dp('btnStart');
+function fm(s){const m=Math.floor(s/60),sc=s%60;return String(m).padStart(2,'0')+':'+String(sc).padStart(2,'0')}
+function tT(){tr?pT():sT()}
+function sT(){tr=!0;bs.textContent='暂停';ti=setInterval(()=>{if(ts<=0){tE();return}ts--;te.textContent=fm(ts)},1000)}
+function pT(){tr=!1;bs.textContent='开始';clearInterval(ti);if(ts<getTM()*60)rF()}
+function rT(){pT();ts=getTM()*60;te.textContent=fm(ts)}
+function getTM(){const a=document.querySelector('.presets button.on');return a?parseInt(a.dataset.min):25}
+function tE(){pT();try{const c=gC();[880,660].forEach((f,i)=>{setTimeout(()=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=f;o.type='sine';g.gain.value=.15;o.start();g.gain.exponentialRampToValueAtTime(.01,c.currentTime+.5);o.stop(c.currentTime+.5)},i*600)})}catch(e){}rC();cA();if(Notification.permission==='granted')new Notification('休息一下吧');setTimeout(()=>alert('🌊 休息一下吧！'),200)}
+document.querySelectorAll('.presets button[data-min]').forEach(b=>b.addEventListener('click',function(){document.querySelectorAll('.presets button').forEach(x=>x.classList.remove('on'));this.classList.add('on');pT();ts=parseInt(this.dataset.min)*60;te.textContent=fm(ts)}));
+function cT(){const m=prompt('自定义分钟 (5-120):','25');if(m&&m>=5&&m<=120){ts=m*60;te.textContent=fm(ts);document.querySelectorAll('.presets button').forEach(x=>x.classList.remove('on'))}}
+function rF(){const d=JSON.parse(localStorage.getItem('interrupts')||'[]');d.push(Date.now());localStorage.setItem('interrupts',JSON.stringify(d));ach('下次坚持住 💪')}
+if(Notification.permission==='default')Notification.requestPermission();
+
+// ═══ Stats & Ring ═══
+const tdy=()=>new Date().toISOString().slice(0,10);
+function rC(){const d=tdy();let data=JSON.parse(localStorage.getItem('focus4')||'{"ds":{},"ss":0}');data.ss++;if(!data.ds[d])data.ds[d]=0;data.ds[d]+=getTM();localStorage.setItem('focus4',JSON.stringify(data));uS()}
+function uS(){const data=JSON.parse(localStorage.getItem('focus4')||'{"ds":{},"ss":0}'),td=data.ds[tdy()]||0;let st=0;for(let i=0;i<365;i++){const d=new Date();d.setDate(d.getDate()-i);if(data.ds[d.toISOString().slice(0,10)])st++;else break}let wk=0;for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()-i);wk+=data.ds[d.toISOString().slice(0,10)]||0}let tt=0;for(const k in data.ds)tt+=data.ds[k];dp('st').textContent=td;dp('ss').textContent=st;dp('sw').textContent=wk;dp('sa').textContent=Math.round(tt/60);const goal=120,r=Math.min(td/goal,1);dp('ring').style.strokeDashoffset=150.8*(1-r);dp('ringNum').textContent=Math.round(r*100)}
+function cA(){const data=JSON.parse(localStorage.getItem('focus4')||'{"ds":{},"ss":0}');let st=0;for(let i=0;i<365;i++){const d=new Date();d.setDate(d.getDate()-i);if(data.ds[d.toISOString().slice(0,10)])st++;else break}const total=Object.values(data.ds).reduce((a,b)=>a+b,0);if(st===7)ach('🔥 连续 7 天！');if(total>=6000)ach('🏆 累计 100 小时！')}
+uS();
+
+// ═══ Noise ═══
+let ac=null,nn=null,np=!1;
+function gC(){if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();return ac}
+document.addEventListener('click',()=>{if(ac&&ac.state==='suspended')ac.resume()},{once:false});
+function cN(){const c=gC(),sr=c.sampleRate,bs=4*sr;const b=c.createBuffer(1,bs,sr),d=b.getChannelData(0);let l=0;for(let i=0;i<d.length;i++){d[i]=(l+.008*(Math.random()*2-1))/1.008;l=d[i]}const b2=c.createBuffer(1,bs,sr),d2=b2.getChannelData(0);for(let i=0;i<d2.length;i++)d2[i]=d[i]*(.6+.4*Math.sin(i*.0008));const s=c.createBufferSource();s.buffer=b2;s.loop=true;const g=c.createGain();g.gain.value=.5;const mg=c.createGain();mg.gain.value=.55;s.connect(g);g.connect(mg);mg.connect(c.destination);return{s,mg};}
+function tN(){const b=dp('bn');if(np){sN()}else{const c=gC();if(c.state==='suspended')c.resume();nn=cN();nn.s.start();np=!0;b.textContent='⏸';dp('viz').classList.add('on')}}
+function sN(){if(nn){try{nn.s.stop()}catch(e){}nn=null}np=!1;dp('bn').textContent='▶';dp('viz').classList.remove('on')}
+function sV(v){if(nn)nn.mg.gain.value=v/100}
+
+// ═══ Todo ═══
+let tds=JSON.parse(localStorage.getItem('ztodos4')||'[]');
+function sTd(){localStorage.setItem('ztodos4',JSON.stringify(tds));rTd()}
+function rTd(){const el=dp('tl');if(!tds.length){el.innerHTML='<li style="text-align:center;opacity:.35;font-size:11px;padding:10px">暂无待办</li>';return}el.innerHTML=tds.map((t,i)=>`<li class="${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} onchange="tdd(${i})"><span>${es(t.text)}</span><button onclick="dt(${i})">✕</button></li>`).join('')}
+function aT(){const inp=dp('ti');const t=inp.value.trim();if(!t)return;tds.push({text:t,done:!1});inp.value='';sTd()}
+function tdd(i){tds[i].done=!tds[i].done;sTd()}
+function dt(i){tds.splice(i,1);sTd()}
+function es(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+rTd();
+
+// ═══ Note ═══
+function sNt(){localStorage.setItem('note',dp('noteArea').value)}
+
+// ═══ Themes ═══
+let CT='cabin',TK=['cabin'],TIDX=0;
+let CM=JSON.parse(localStorage.getItem('customThemes')||'{"cabin":{"bg":"bg.mp4","nl":"雨中小屋","nd":"窗外雨声","video":true}}');
+for(const k in CM)TK.push(k);
+TK=[...new Set(TK)];
+
+function sT(t){
+  CT=t;TIDX=TK.indexOf(t);const v=dp('bgVideo');if(v){v.src=CM[t]?.bg||'bg.mp4';v.load()}
+  if(CM[t]){dp('nl').textContent=CM[t].nl||'';dp('nd').textContent=CM[t].nd||''}sN();rDots();
+}
+function rDots(){
+  let html=TK.map(k=>`<div class="scene-dot ${k===CT?'active':''}" style="background-image:url('${CM[k]?.bg||''}')" onclick="sT('${k}')" oncontextmenu="rCtm(event,'${k}')" title="${CM[k]?.nl||k}"></div>`).join('');
+  html+=`<div class="scene-dot" style="display:flex;align-items:center;justify-content:center;font-size:14px;color:rgba(255,255,255,.4);background:rgba(255,255,255,.05)" onclick="aC()">+</div>`;
+  dp('sceneDots').innerHTML=html;
+}
+function rCtm(e,k){e.preventDefault();if(!CM[k]||k==='cabin')return;if(!confirm(`删除"${CM[k].nl}"？`))return;delete CM[k];localStorage.setItem('customThemes',JSON.stringify(CM));TK=TK.filter(x=>x!==k);if(CT===k){CT='cabin';sT('cabin')}rDots()}
+function aC(){const i=document.createElement('input');i.type='file';i.accept='image/*,video/*';i.onchange=function(){const f=i.files[0];if(!f)return;const r=new FileReader();r.onload=function(){const n=prompt('场景名字:',f.name.replace(/\.[^.]+$/,''))||'自定义';const k='c_'+Date.now();const isV=f.type.startsWith('video/');CM[k]={bg:r.result,nl:n,nd:'自定义',video:isV};localStorage.setItem('customThemes',JSON.stringify(CM));TK.push(k);sT(k)};r.readAsDataURL(f)};i.click()}
+rDots();
+
+// ═══ Weather canvas (rain effect) ═══
+const wc=dp('weatherCanvas'),wctx=wc.getContext('2d');let drops=[];
+function rW(){wc.width=innerWidth;wc.height=innerHeight;drops=Array.from({length:80},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,s:1+Math.random()*2,o:.1+Math.random()*.15}))}
+function dW(){wctx.clearRect(0,0,wc.width,wc.height);wctx.strokeStyle='rgba(200,220,240,.3)';wctx.lineWidth=1;for(const d of drops){wctx.globalAlpha=d.o;wctx.beginPath();wctx.moveTo(d.x,d.y);wctx.lineTo(d.x-1,d.y+d.s*8);wctx.stroke();d.y+=d.s*3;if(d.y>wc.height){d.y=-10;d.x=Math.random()*wc.width}}requestAnimationFrame(dW)}
+rW();dW();window.addEventListener('resize',rW);
+
+// ═══ Achievements ═══
+function ach(msg){const e=dp('ach');e.textContent=msg;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2500)}
+
+// ═══ Water reminder ═══
+let wrTimer=0;setInterval(()=>{wrTimer++;if(wrTimer>=45){ach('💧 喝口水吧！');wrTimer=0}},60000);
+
+// ═══ Online counter ═══
+setInterval(()=>{const n=2800+Math.floor(Math.random()*200);dp('online').textContent=`此刻 ${n.toLocaleString()} 人在自习`},60000);
+
+// ═══ Keyboard ═══
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){cP();return}
+  if(e.key==='1')tP('timer');if(e.key==='2')tP('noise');if(e.key==='3')tP('todo');if(e.key==='4')tP('note');if(e.key==='5')tP('stats');if(e.key==='6')tP('links');
+  if(e.key==='ArrowLeft'&&TK.length){TIDX=(TIDX-1+TK.length)%TK.length;sT(TK[TIDX])}
+  if(e.key==='ArrowRight'&&TK.length){TIDX=(TIDX+1)%TK.length;sT(TK[TIDX])}
+});
+document.addEventListener('click',e=>{if(OP&&!e.target.closest('.popup')&&!e.target.closest('.dock-btn'))cP()});
+tP('timer');
+</script>
+</body>
+</html>

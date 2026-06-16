@@ -1,0 +1,28 @@
+<!DOCTYPE html><html lang="zh"><head><meta charset="UTF-8"><title>Style B · Neon Noir</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#06060a;display:flex;align-items:center;justify-content:center;height:100vh;overflow:hidden}
+.stage{width:1920px;height:1080px;position:relative;transform-origin:center;background:radial-gradient(ellipse at 60% 40%,#141028 0%,#06060a 60%)}
+.glow{position:absolute;width:800px;height:800px;border-radius:50%;background:radial-gradient(circle,rgba(233,69,96,.08) 0%,transparent 70%);top:10%;left:55%;pointer-events:none}
+.content{position:absolute;inset:100px;display:flex;flex-direction:column;justify-content:center}
+.tag{display:inline-block;padding:6px 18px;border:1px solid rgba(233,69,96,.5);color:#e94560;font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-weight:500;margin-bottom:40px;width:fit-content}
+.h1{font-size:130px;font-weight:900;color:#f0e6e0;line-height:.92;letter-spacing:.02em;margin-bottom:28px}
+.h1 em{font-style:normal;color:#e94560}
+.p{font-size:26px;color:rgba(240,230,224,.5);max-width:680px;line-height:1.5;font-weight:300}
+.line{position:absolute;bottom:100px;left:100px;right:100px;height:1px;background:linear-gradient(90deg,rgba(233,69,96,.3),rgba(255,255,255,.05))}
+.footer{position:absolute;bottom:60px;left:100px;right:100px;display:flex;justify-content:space-between;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.2)}
+</style></head><body>
+<div class="stage" id="stage">
+<div class="glow"></div>
+<div class="content">
+<div class="tag">Vibe Coding · 2026</div>
+<div class="h1">描述即<em>创造</em></div>
+<div class="p">一行提示词替代一百行代码。这不是未来，是今天下午就能交付的现在。</div>
+</div>
+<div class="line"></div>
+<div class="footer"><span>SENTINEL · 网络哨兵</span><span>June 2026</span></div>
+</div>
+<script>
+function rs(){const s=Math.min(innerWidth/1920,innerHeight/1080);document.getElementById('stage').style.transform=`scale(${s})`}
+window.addEventListener('resize',rs);rs()
+</script></body></html>

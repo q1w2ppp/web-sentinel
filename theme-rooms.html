@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>自习室</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--accent:#d97706;--accent2:#f59e0b;--card-bg:rgba(30,25,18,.35);--text:#f0e6d0;--text-muted:#b8a080}
+body.warm{--bg:url('https://images.unsplash.com/photo-1680735644505-f0ac8f6ee921?w=1920&q=80');--accent:#d97706;--accent2:#f59e0b;--card-bg:rgba(30,25,18,.35);--text:#f0e6d0;--text-muted:#b8a080}
+body.rain{--bg:url('https://images.unsplash.com/photo-1501186758051-167ca3c0fde8?w=1920&q=80');--accent:#94a3b8;--accent2:#cbd5e1;--card-bg:rgba(20,25,35,.4);--text:#d8e0e8;--text-muted:#8899aa}
+body.read{--bg:url('https://images.unsplash.com/photo-1495640452828-3df6795cf69b?w=1920&q=80');--accent:#e05d3a;--accent2:#f09070;--card-bg:rgba(35,25,20,.35);--text:#f0e0d0;--text-muted:#b09080}
+body.day{--bg:url('https://images.unsplash.com/photo-1711452842532-67faa707c209?w=1920&q=80');--accent:#2563eb;--accent2:#60a5fa;--card-bg:rgba(240,245,255,.22);--text:#1e3a5f;--text-muted:#5a7a9a}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Raleway',sans-serif;height:100vh;overflow:hidden}
+
+.bg{position:fixed;inset:0;z-index:0;background:var(--bg) center/cover}
+.bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.3) 0%,transparent 30%,rgba(0,0,0,.08) 100%);transition:background .6s}
+
+.themes{position:fixed;top:16px;right:20px;z-index:20;display:flex;gap:8px}
+.theme-btn{width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,.35);cursor:pointer;transition:all .25s;background-size:cover;background-position:center;position:relative}
+.theme-btn:hover{transform:scale(1.2);border-color:#fff}
+.theme-btn.active{border-color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.5)}
+.tip{position:absolute;top:-26px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.75);color:#fff;font-size:10px;padding:2px 8px;border-radius:5px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s}
+.theme-btn:hover .tip{opacity:1}
+.t1{background-image:url('https://images.unsplash.com/photo-1680735644505-f0ac8f6ee921?w=80&q=60')}
+.t2{background-image:url('https://images.unsplash.com/photo-1501186758051-167ca3c0fde8?w=80&q=60')}
+.t3{background-image:url('https://images.unsplash.com/photo-1495640452828-3df6795cf69b?w=80&q=60')}
+.t4{background-image:url('https://images.unsplash.com/photo-1711452842532-67faa707c209?w=80&q=60')}
+
+/* Content — sits at bottom 40% of screen, leaving top 60% for the photo */
+.content{position:absolute;bottom:0;left:0;right:0;z-index:10;padding:0 28px 36px}
+.header{text-align:center;margin-bottom:18px}
+.header h1{font-family:'Lora',serif;font-size:28px;font-weight:700;color:#fff;letter-spacing:.04em;text-shadow:0 2px 20px rgba(0,0,0,.5)}
+.quote-bar{font-size:13px;color:rgba(255,255,255,.75);font-style:italic;min-height:18px;transition:opacity .5s;text-shadow:0 1px 6px rgba(0,0,0,.4)}
+
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;max-width:1050px;margin:0 auto}
+
+.card{background:var(--card-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:14px;padding:22px 20px;border:1px solid rgba(255,255,255,.2);box-shadow:0 4px 20px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.25);transition:all .3s}
+.card:hover{box-shadow:0 6px 28px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.3);transform:translateY(-1px)}
+.card h2{font-family:'Lora',serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card h2 svg{width:18px;height:18px;color:var(--accent);flex-shrink:0}
+
+.timer-display{font-size:48px;font-weight:300;text-align:center;letter-spacing:.06em;color:var(--text);margin-bottom:12px;font-variant-numeric:tabular-nums}
+.timer-preset{display:flex;gap:5px;justify-content:center;margin-bottom:10px}
+.timer-preset button{padding:5px 12px;border-radius:16px;border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);background:rgba(255,255,255,.1);cursor:pointer;font-size:11px;font-family:'Raleway',sans-serif;color:var(--text);transition:all .2s}
+.timer-preset button:hover,.timer-preset button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.timer-custom{display:flex;gap:6px;justify-content:center;margin-bottom:12px}
+.timer-custom input{width:44px;text-align:center;border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);border-radius:8px;padding:4px;font-family:'Raleway',sans-serif;font-size:12px;background:rgba(255,255,255,.1);color:var(--text);outline:none}
+.timer-custom input:focus{border-color:var(--accent)}
+.timer-custom span{font-size:12px;color:var(--text-muted);align-self:center}
+.timer-actions{display:flex;gap:8px;justify-content:center}
+.timer-actions button{width:36px;height:36px;border-radius:50%;border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);background:rgba(255,255,255,.12);cursor:pointer;color:var(--accent);transition:all .2s;display:flex;align-items:center;justify-content:center}
+.timer-actions button:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.timer-actions .btn-main{width:auto;padding:0 20px;border-radius:18px;font-size:13px;font-weight:600;background:var(--accent);color:#fff;border-color:var(--accent)}
+.timer-actions .btn-main:hover{background:var(--accent2)}
+
+.noise-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.noise-row svg{width:18px;height:18px;color:var(--accent);flex-shrink:0}
+.noise-row span{font-size:13px;color:var(--text)}
+.noise-row button{border:none;background:none;cursor:pointer;color:var(--accent);width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .2s;margin-left:auto}
+.noise-row button:hover{background:color-mix(in srgb,var(--accent) 15%,transparent)}
+input[type=range]{width:100%;height:4px;-webkit-appearance:none;background:color-mix(in srgb,var(--accent) 25%,transparent);border-radius:2px;outline:none;margin:6px 0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);cursor:pointer}
+.noise-desc{font-size:10px;color:var(--text-muted);text-align:center;margin-top:6px;opacity:.7}
+
+.todo-input-row{display:flex;gap:6px;margin-bottom:12px}
+.todo-input-row input{flex:1;border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);border-radius:8px;padding:8px 12px;font-family:'Raleway',sans-serif;font-size:12px;background:rgba(255,255,255,.1);color:var(--text);outline:none}
+.todo-input-row input:focus{border-color:var(--accent)}
+.todo-input-row input::placeholder{color:var(--text-muted)}
+.todo-input-row button{border-radius:8px;border:none;background:var(--accent);color:#fff;padding:8px 14px;cursor:pointer;font-family:'Raleway',sans-serif;font-size:12px;font-weight:600;transition:all .2s}
+.todo-input-row button:hover{background:var(--accent2)}
+.todo-list{list-style:none;max-height:150px;overflow-y:auto}
+.todo-list li{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;transition:background .2s;font-size:12px;color:var(--text)}
+.todo-list li:hover{background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.todo-list li.done span{text-decoration:line-through;color:var(--text-muted)}
+.todo-list li input[type=checkbox]{accent-color:var(--accent);width:14px;height:14px;cursor:pointer}
+.todo-list li span{flex:1}
+.todo-list li button{border:none;background:none;cursor:pointer;color:rgba(180,130,110,.7);padding:2px 6px;border-radius:4px;display:flex}
+.todo-list li button:hover{background:rgba(180,130,110,.1);color:#a06050}
+.empty-todo{text-align:center;color:var(--text-muted);font-size:12px;padding:18px 0;opacity:.7}
+
+@media(min-width:1400px){.content{padding:0 40px 40px}.grid{gap:24px;max-width:1200px}.card{padding:28px 24px}.timer-display{font-size:56px}.header h1{font-size:32px}}
+@media(max-width:900px){.grid{grid-template-columns:1fr;max-width:420px}.content{padding:0 20px 28px}.header h1{font-size:24px}.timer-display{font-size:42px}}
+@media(max-width:480px){.card{padding:18px 16px}.timer-display{font-size:34px}.header h1{font-size:20px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body class="warm">
+
+<div class="bg"></div>
+
+<div class="themes">
+  <button class="theme-btn t1 active" data-theme="warm" onclick="set('warm')"><span class="tip">窗边</span></button>
+  <button class="theme-btn t2" data-theme="rain" onclick="set('rain')"><span class="tip">雨天</span></button>
+  <button class="theme-btn t3" data-theme="read" onclick="set('read')"><span class="tip">阅读</span></button>
+  <button class="theme-btn t4" data-theme="day" onclick="set('day')"><span class="tip">白天</span></button>
+</div>
+
+<div class="content">
+  <div class="header">
+    <h1 id="rt">窗边自习室</h1>
+    <div class="quote-bar" id="quote">窗外有大海</div>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>番茄钟</h2>
+      <div class="timer-display" id="timer">25:00</div>
+      <div class="timer-preset">
+        <button class="active" data-min="25">25分</button>
+        <button data-min="45">45分</button>
+        <button data-min="60">60分</button>
+      </div>
+      <div class="timer-custom"><input type="number" id="customMin" value="25" min="5" max="120"><span>分钟</span></div>
+      <div class="timer-actions">
+        <button class="btn-main" id="btnStart" onclick="tt()">开始</button>
+        <button onclick="rtimer()" title="重置"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M1 4v6h6"/><path d="M3.5 16A9 9 0 102 12"/></svg></button>
+      </div>
+    </div>
+    <div class="card">
+      <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.59 4.59A2 2 0 1111 8H2m10.59 11.41A2 2 0 1014 16H2m15.73-8.27A2.5 2.5 0 1119.5 12H2"/></svg><span id="nl">海浪</span></h2>
+      <div class="noise-row"><span id="nd">窗外海风</span><button onclick="tn()" id="bn"><svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><polygon points="6,3 20,12 6,21"/></svg></button></div>
+      <input type="range" min="0" max="100" value="60" oninput="sv(this.value)">
+      <div class="noise-desc" id="nt">白噪音 · 循环播放</div>
+    </div>
+    <div class="card">
+      <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>待办</h2>
+      <div class="todo-input-row">
+        <input type="text" id="ti" placeholder="添加任务..." onkeydown="if(event.key==='Enter')at()">
+        <button onclick="at()">添加</button>
+      </div>
+      <ul class="todo-list" id="tl"><li class="empty-todo">暂无待办事项</li></ul>
+    </div>
+  </div>
+</div>
+
+<script>
+const T={warm:{t:'窗边自习室',q:["窗外有大海","宁静致远","深呼吸，慢慢来","书卷多情似故人","此刻即是最好的时刻"],nl:'海浪',nd:'窗外海风'},rain:{t:'雨天自习室',q:["雨声是最好的白噪音","听雨","不急不躁","窗外下雨，内心安宁","雨带走所有杂念"],nl:'雨声',nd:'窗外雨声'},read:{t:'阅读角',q:["书读百遍其义自见","安静是最强大的力量","一本书就是一座避难所","专注力是你的超能力","少即是多"],nl:'壁炉',nd:'柴火轻响'},day:{t:'白天自习室',q:["一日之计在于晨","心无旁骛","保持专注","日拱一卒","安静是最强大的力量"],nl:'窗外',nd:'远处环境声'}};
+let CT='warm',qi=0;
+
+function set(t){
+  CT=t;document.body.className=t;
+  document.querySelectorAll('.theme-btn').forEach(b=>b.classList.toggle('active',b.dataset.theme===t));
+  document.getElementById('rt').textContent=T[t].t;
+  document.getElementById('nl').textContent=T[t].nl;
+  document.getElementById('nd').textContent=T[t].nd;
+  sn();qi=0;rq();
+}
+function rq(){const q=T[CT].q;qi=(qi+1)%q.length;const e=document.getElementById('quote');e.style.opacity=0;setTimeout(()=>{e.textContent=q[qi];e.style.opacity=1},300)}
+setInterval(rq,15000);rq();
+
+let ts=25*60,tr=!1,ti=null;
+const te=document.getElementById('timer'),bs=document.getElementById('btnStart'),ce=document.getElementById('customMin');
+function fm(s){const m=Math.floor(s/60),sc=s%60;return String(m).padStart(2,'0')+':'+String(sc).padStart(2,'0')}
+function ut(){te.textContent=fm(ts)}
+function tt(){tr?pt():st()}
+function st(){tr=!0;bs.textContent='暂停';ti=setInterval(()=>{if(ts<=0){tnr();return}ts--;ut()},1000)}
+function pt(){tr=!1;bs.textContent='开始';clearInterval(ti)}
+function rtimer(){pt();ts=parseInt(ce.value)*60;ut()}
+function tnr(){pt();try{const c=gc();[880,660].forEach((f,i)=>{setTimeout(()=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=f;o.type='sine';g.gain.value=.2;o.start();g.gain.exponentialRampToValueAtTime(.01,c.currentTime+.5);o.stop(c.currentTime+.5)},i*600)})}catch(e){}if(Notification.permission==='granted')new Notification('休息一下吧');setTimeout(()=>alert('⏰ 休息一下吧！'),200)}
+document.querySelectorAll('.timer-preset button').forEach(b=>b.addEventListener('click',function(){document.querySelectorAll('.timer-preset button').forEach(x=>x.classList.remove('active'));this.classList.add('active');ce.value=this.dataset.min;pt();ts=parseInt(this.dataset.min)*60;ut()}));
+ce.addEventListener('change',function(){document.querySelectorAll('.timer-preset button').forEach(x=>x.classList.remove('active'));pt();ts=parseInt(this.value)*60;ut()});
+if(Notification.permission==='default')Notification.requestPermission();
+
+let ac=null,nn=null,np=!1;
+function gc(){if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();return ac}
+document.addEventListener('click',()=>{if(ac&&ac.state==='suspended')ac.resume()},{once:false});
+function cn(type){
+  const c=gc(),sr=c.sampleRate,bs=4*sr;
+  const b1=c.createBuffer(1,bs,sr),d=b1.getChannelData(0);let l=0;
+  for(let i=0;i<d.length;i++){d[i]=(l+.008*(Math.random()*2-1))/1.008;l=d[i]}
+  const b2=c.createBuffer(1,bs,sr),d2=b2.getChannelData(0);
+  const mod=type==='rain'?.0005:type==='fire'?.0003:.0008;
+  const r2=type==='rain'?.3:type==='fire'?.6:.4;
+  for(let i=0;i<d2.length;i++)d2[i]=d[i]*(.6+r2*Math.sin(i*mod));
+  if(type==='fire'){for(let i=0;i<d2.length;i++){if(Math.random()<.003)d2[i]*=3;d2[i]*=.7}}
+  const s=c.createBufferSource();s.buffer=b2;s.loop=true;
+  const wb=c.createBuffer(1,bs,sr),wd=wb.getChannelData(0);l=0;
+  for(let i=0;i<wd.length;i++){wd[i]=(l+.02*(Math.random()*2-1))/1.02;l=wd[i]}
+  const ws=c.createBufferSource();ws.buffer=wb;ws.loop=true;
+  const wf=c.createBiquadFilter();wf.type='bandpass';wf.frequency.value=type==='rain'?800:type==='fire'?600:400;wf.Q.value=type==='rain'?.8:type==='fire'?.5:.3;
+  const g=c.createGain();g.gain.value=.5;const wg=c.createGain();wg.gain.value=type==='fire'?.1:.25;
+  const mg=c.createGain();mg.gain.value=.55;s.connect(g);g.connect(mg);ws.connect(wf);wf.connect(wg);wg.connect(mg);mg.connect(c.destination);
+  return{s,ws,mg};
+}
+function tn(){
+  const b=document.getElementById('bn');
+  if(np){sn()}else{const c=gc();if(c.state==='suspended')c.resume();const type=CT==='rain'?'rain':CT==='read'?'fire':'ocean';nn=cn(type);nn.s.start();nn.ws.start();np=!0;b.innerHTML='<svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><rect x="6" y="4" width="5" height="16" rx="1"/><rect x="14" y="4" width="5" height="16" rx="1"/></svg>'}
+}
+function sn(){if(nn){try{nn.s.stop()}catch(e){}try{nn.ws.stop()}catch(e){}nn=null}np=!1;document.getElementById('bn').innerHTML='<svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><polygon points="6,3 20,12 6,21"/></svg>'}
+function sv(v){if(nn)nn.mg.gain.value=v/100}
+
+let tds=JSON.parse(localStorage.getItem('rtodos')||'[]');
+function sts(){localStorage.setItem('rtodos',JSON.stringify(tds));rts()}
+function rts(){const el=document.getElementById('tl');if(!tds.length){el.innerHTML='<li class="empty-todo">暂无待办事项</li>';return}el.innerHTML=tds.map((t,i)=>`<li class="${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} onchange="ttd(${i})"><span>${es(t.text)}</span><button onclick="dt(${i})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></li>`).join('')}
+function at(){const inp=document.getElementById('ti');const t=inp.value.trim();if(!t)return;tds.push({text:t,done:!1});inp.value='';sts()}
+function ttd(i){tds[i].done=!tds[i].done;sts()}
+function dt(i){tds.splice(i,1);sts()}
+function es(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+rts();
+</script>
+</body>
+</html>

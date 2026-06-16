@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frontend Slides · 演示</title>
+<style>
+html, body { margin:0; padding:0; width:100%; height:100%; overflow:hidden; background:#0a0a0a }
+.stage-wrapper { width:100vw; height:100vh; display:flex; align-items:center; justify-content:center }
+.stage { width:1920px; height:1080px; position:relative; transform-origin:center center; background:#0a0a0a; overflow:hidden }
+.slide { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; visibility:hidden; opacity:0; pointer-events:none; transition:opacity .6s,visibility .6s }
+.slide.active { visibility:visible; opacity:1; pointer-events:auto }
+
+/* S1 */
+.s1 { background:radial-gradient(ellipse at 30% 50%,#1a1a2e 0%,#0a0a0a 70%) }
+.s1 h1 { font-size:120px; font-weight:900; letter-spacing:.06em; color:#fff; text-align:center; line-height:1.1; margin-bottom:24px }
+.s1 h1 span { background:linear-gradient(135deg,#e94560,#0f3460,#e94560); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-size:200% 200%; animation:shimmer 3s infinite }
+.s1 p { font-size:28px; color:#6c6c8a; letter-spacing:.12em; text-transform:uppercase }
+@keyframes shimmer { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+
+/* S2 */
+.s2 { background:#0f0f1a }
+.s2 h2 { font-size:72px; font-weight:700; color:#e94560; margin-bottom:60px; letter-spacing:.04em }
+.s2 .grid { display:flex; gap:40px; max-width:1200px }
+.s2 .card { flex:1; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); padding:48px 36px }
+.s2 .card h3 { font-size:24px; color:#fff; margin-bottom:16px; font-weight:600 }
+.s2 .card p { font-size:18px; color:#6c6c8a; line-height:1.6 }
+
+/* S3 */
+.s3 { background:linear-gradient(135deg,#0a0a12,#1a1030) }
+.s3 h2 { font-size:64px; font-weight:700; color:#fff; margin-bottom:50px; letter-spacing:.04em }
+.s3 .tags { display:flex; gap:16px; flex-wrap:wrap; justify-content:center; max-width:1100px }
+.s3 .tag { padding:14px 28px; border:1px solid rgba(255,255,255,.15); color:#fff; font-size:18px; letter-spacing:.06em; background:rgba(255,255,255,.03) }
+.s3 .tag:nth-child(odd) { border-color:#e94560; color:#e94560 }
+
+/* S4 */
+.s4 { background:#0a0a0a }
+.s4 h2 { font-size:60px; font-weight:700; color:#fff; margin-bottom:60px }
+.s4 .list { display:flex; flex-direction:column; gap:32px; max-width:900px }
+.s4 .item { display:flex; align-items:center; gap:24px; font-size:22px; color:#6c6c8a }
+.s4 .num { font-size:14px; color:#e94560; font-weight:700; letter-spacing:.1em; width:40px }
+
+/* S5 */
+.s5 { background:radial-gradient(ellipse at 70% 30%,#1a1030 0%,#0a0a0a 70%) }
+.s5 h2 { font-size:100px; font-weight:900; color:#fff; text-align:center; margin-bottom:20px }
+.s5 p { font-size:28px; color:#6c6c8a; text-align:center }
+
+/* Nav */
+.nav { position:fixed; bottom:32px; left:50%; transform:translateX(-50%); display:flex; gap:12px; z-index:100 }
+.nav button { width:44px; height:44px; border:1px solid rgba(255,255,255,.15); background:rgba(255,255,255,.04); color:#fff; cursor:pointer; font-size:18px; transition:background .2s }
+.nav button:hover { background:rgba(255,255,255,.12) }
+.dots { display:flex; gap:8px; align-items:center; margin:0 16px }
+.dot { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.2); transition:background .3s }
+.dot.active { background:#e94560 }
+@media(prefers-reduced-motion:reduce){.slide{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="stage-wrapper"><div class="stage" id="stage">
+
+<div class="slide s1 active" data-index="0">
+  <h1><span>Frontend<br>Slides</span></h1>
+  <p>AI 驱动的网页幻灯片</p>
+</div>
+
+<div class="slide s2" data-index="1">
+  <h2>它能做什么</h2>
+  <div class="grid">
+    <div class="card"><h3>🎨 风格发现</h3><p>不知道要什么设计？生成 3 个预览让你看图选</p></div>
+    <div class="card"><h3>⚡ 零依赖</h3><p>单个 HTML 文件，无 npm，无构建工具，打开即用</p></div>
+    <div class="card"><h3>📦 PPT 转换</h3><p>拖入 .pptx 自动提取内容转网页</p></div>
+  </div>
+</div>
+
+<div class="slide s3" data-index="2">
+  <h2>12 个内置风格</h2>
+  <div class="tags">
+    <span class="tag">Swiss Modern</span><span class="tag">Neon Cyber</span><span class="tag">Terminal Green</span>
+    <span class="tag">Paper & Ink</span><span class="tag">Bold Signal</span><span class="tag">Electric Studio</span>
+    <span class="tag">Dark Botanical</span><span class="tag">Pastel Geometry</span><span class="tag">Vintage Editorial</span>
+    <span class="tag">Creative Voltage</span><span class="tag">Notebook Tabs</span><span class="tag">Split Pastel</span>
+  </div>
+</div>
+
+<div class="slide s4" data-index="3">
+  <h2>设计哲学</h2>
+  <div class="list">
+    <div class="item"><span class="num">01</span>你不是设计师——你只需要看图做选择</div>
+    <div class="item"><span class="num">02</span>依赖即负债——单 HTML 文件 10 年后还能打开</div>
+    <div class="item"><span class="num">03</span>每页都要有辨识度——不用 AI 味的模板</div>
+    <div class="item"><span class="num">04</span>注释即善意——代码要自己能说话</div>
+  </div>
+</div>
+
+<div class="slide s5" data-index="4">
+  <h2>现在开始</h2>
+  <p>/frontend-slides 你的主题</p>
+</div>
+
+</div></div>
+
+<nav class="nav">
+  <button onclick="prev()">◀</button>
+  <div class="dots" id="dots"></div>
+  <button onclick="next()">▶</button>
+</nav>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+const dotsEl=document.getElementById('dots');
+dotsEl.innerHTML=slides.map((_,i)=>`<span class="dot${i===0?' active':''}" data-index="${i}"></span>`).join('');
+let cur=0;
+function go(i){slides[cur].classList.remove('active');dotsEl.children[cur].classList.remove('active');cur=(i+slides.length)%slides.length;slides[cur].classList.add('active');dotsEl.children[cur].classList.add('active')}
+function next(){go(cur+1)}
+function prev(){go(cur-1)}
+function rs(){const s=Math.min(innerWidth/1920,innerHeight/1080);const st=document.getElementById('stage');st.style.transform=`scale(${s})`}
+window.addEventListener('resize',rs);rs();
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();next()}if(e.key==='ArrowLeft'){e.preventDefault();prev()}});
+let tx=0;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX});document.addEventListener('touchend',e=>{if(e.changedTouches[0].clientX-tx<-50)next();if(e.changedTouches[0].clientX-tx>50)prev()});
+dotsEl.addEventListener('click',e=>{const d=e.target.closest('.dot');if(d)go(+d.dataset.index)});
+</script>
+</body>
+</html>
