@@ -120,7 +120,8 @@ header h1 i{color:var(--blue)}
     <button class="btn btn-primary" onclick="openCustomerModal()"><i class="fa-solid fa-plus"></i>添加客户</button>
     <button class="btn btn-outline btn-sm" onclick="exportData()" title="导出"><i class="fa-solid fa-download"></i></button>
     <button class="btn btn-outline btn-sm" onclick="installApp()" id="installBtn" style="display:none"><i class="fa-solid fa-download"></i> 安装</button>
-<button class="btn btn-outline btn-sm" onclick="importData()" title="导入"><i class="fa-solid fa-upload"></i></button>
+<button class="btn btn-outline btn-sm" onclick="syncLoad()" title="下载"><i class="fa-solid fa-cloud-download"></i></button>
+<button class="btn btn-outline btn-sm" onclick="syncSave()" title="上传"><i class="fa-solid fa-cloud-upload"></i></button>
   </div>
 </header>
 
@@ -141,8 +142,18 @@ header h1 i{color:var(--blue)}
 // ═══ Data ═══
 let customers=JSON.parse(localStorage.getItem('crm_customers')||'[]');
 let selectedId=null,currentFilter='全部';
+const API='https://web-sentinel-fqf2.onrender.com/api/crm';
 
 function save(){localStorage.setItem('crm_customers',JSON.stringify(customers))}
+
+// Sync: pull from server on load, push on save
+async function syncLoad(){
+  try{const r=await fetch(API+'/load');const d=await r.json();if(d.length>customers.length){customers=d;save();renderList();t('已同步服务器数据')}}catch(e){}
+}
+async function syncSave(){
+  try{await fetch(API+'/save',{method:'POST',body:JSON.stringify(customers)});t('已同步到云端')}catch(e){t('同步失败，检查网络')}
+}
+syncLoad();
 
 function uuid(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}
 

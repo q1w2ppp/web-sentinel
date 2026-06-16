@@ -463,6 +463,40 @@ const server = http.createServer(async (req, res) => {
     return res.end(JSON.stringify(briefings));
   }
 
+  // API: CRM — save customer data
+  if (req.method === "POST" && req.url === "/api/crm/save") {
+    let body = "";
+    req.on("data", c => body += c);
+    req.on("end", () => {
+      try {
+        fs.writeFileSync(path.join(__dirname, "data", "crm.json"), body);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ ok: true }));
+      } catch(e) {
+        res.writeHead(500);
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  // API: CRM — load customer data
+  if (req.method === "GET" && req.url === "/api/crm/load") {
+    try {
+      const fp = path.join(__dirname, "data", "crm.json");
+      if (fs.existsSync(fp)) {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        return res.end(fs.readFileSync(fp, "utf-8"));
+      }
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end("[]");
+    } catch(e) {
+      res.writeHead(500);
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+
   // Default: serve index
   res.writeHead(200, { "Content-Type": "text/html;charset=utf-8" });
   res.end(fs.readFileSync(path.join(__dirname, "index.html")));
