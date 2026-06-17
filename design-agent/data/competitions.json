@@ -1,0 +1,47 @@
+{
+  "red-dot": {
+    "name": "Red Dot Design Award",
+    "name_zh": "红点奖",
+    "category_range": ["品牌设计","海报","包装","UI/UX","出版物","导视系统"],
+    "prefers": ["创新概念","系统化思维","清晰执行","功能与美学平衡"],
+    "avoid": ["纯装饰无功能","实验性过强","个人化表达无商业逻辑"],
+    "weight": {"concept":0.3,"execution":0.4,"innovation":0.3},
+    "tags": ["商业","系统","创新","德国","工业感"]
+  },
+  "dad": {
+    "name": "D&AD Awards",
+    "name_zh": "D&AD 铅笔奖",
+    "category_range": ["海报","字体设计","品牌","插画","数字设计","社论"],
+    "prefers": ["大胆创意","社会议题","实验性","概念驱动","让人不舒服的美"],
+    "avoid": ["安全保守","纯商业无文化价值","跟随趋势无突破"],
+    "weight": {"concept":0.5,"execution":0.2,"innovation":0.3},
+    "tags": ["英国","创意","实验","概念","社会"]
+  },
+  "cannes-lions": {
+    "name": "Cannes Lions",
+    "name_zh": "戛纳创意节",
+    "category_range": ["品牌传播","设计","户外","数字体验","社媒"],
+    "prefers": ["品牌叙事","大众传播力","创意×生意","洞察驱动"],
+    "avoid": ["自嗨型无传播力","小众到无人能懂","纯美术无商业逻辑"],
+    "weight": {"concept":0.35,"execution":0.25,"innovation":0.4},
+    "tags": ["商业","传播","品牌","创意","大制作"]
+  },
+  "tokyo-tdc": {
+    "name": "Tokyo TDC",
+    "name_zh": "东京字体指导俱乐部",
+    "category_range": ["字体设计","排版","海报","书籍","实验字体"],
+    "prefers": ["字体创新","东方审美","实验排版","文字即图像","精致的实验"],
+    "avoid": ["粗放","无字体意识","纯西方视角"],
+    "weight": {"concept":0.25,"execution":0.45,"innovation":0.3},
+    "tags": ["日本","字体","排版","实验","精致"]
+  },
+  "if-design": {
+    "name": "iF Design Award",
+    "name_zh": "iF 设计奖",
+    "category_range": ["全品类","产品","品牌","UI/UX","包装","导视"],
+    "prefers": ["系统性完整","商业可行性","用户友好","德国制造感"],
+    "avoid": ["半成品","无用户测试","概念阶段作品"],
+    "weight": {"concept":0.2,"execution":0.5,"innovation":0.3},
+    "tags": ["德国","系统","商业","用户","全品类"]
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "grid": {
+    "name": "网格系统",
+    "principles": ["12列分栏是可读性的最佳宽度","基线网格保证纵向阅读节奏","所有元素必须对齐到网格节点","留白是网格的一部分，不是'空的'"],
+    "anti_patterns": ["元素随机散落无对齐参考","用不同网格在同一页面混排","照片跨栏但不跨完整栏数"],
+    "checklist": [
+      {"check": "所有文本基线是否对齐到 baseline grid","weight": "fatal"},
+      {"check": "照片/图形是否跨完整栏目","weight": "important"},
+      {"check": "留白是否为网格单元整数倍","weight": "suggestion"},
+      {"check": "不同页是否使用统一网格系统","weight": "important"}
+    ]
+  },
+  "gestalt": {
+    "name": "格式塔原理",
+    "principles": ["接近性：相关元素比不相关元素更靠近","相似性：相似外观的元素被看作一组","闭合性：不完整的图形会被脑补完整","连续性：视线会在排列方向延续"],
+    "anti_patterns": ["功能不同的元素因距离近被误认为同一组","用颜色区分但形状完全相同，导致歧义","有开口的框不处理边缘"],
+    "checklist": [
+      {"check": "相关信息是否物理上靠近","weight": "fatal"},
+      {"check": "不同信息类是否用不同视觉特征区分","weight": "important"},
+      {"check": "读者第一眼看到的信息是否是你想强调的","weight": "fatal"},
+      {"check": "闭合形状是否处理好了开口/缺口","weight": "suggestion"}
+    ]
+  },
+  "visual_flow": {
+    "name": "视觉动线",
+    "patterns": {
+      "z": "从左到右 → 斜下 → 再从左到右 → 网页扫描默认",
+      "f": "从上到下阅读 → 左对齐寻找 → 再扫下一行 → 英文阅读",
+      "center": "中心向外辐射 → 适合单一焦点",
+      "diagonal": "对角线引导 → 动态感强"
+    },
+    "checklist": [
+      {"check": "读者第一眼落在哪里（能否2秒内找到？）","weight": "fatal"},
+      {"check": "视线是否被不必要元素分走","weight": "important"},
+      {"check": "是否用了合适的动线模式","weight": "suggestion"}
+    ]
+  },
+  "typography": {
+    "name": "字体层级",
+    "levels": {"display":"48px+ 节目级","heading":"24-36px 标题","body":"14-18px 正文","caption":"10-12px 辅助信息"},
+    "rules": ["一个页面不超过3种字号","标题与正文字体有明显对比（衬线 vs 无衬线 / 粗 vs 细）","行高不低于字号的1.4倍"],
+    "anti_patterns": ["13/15/17px等中间值字号","混用两个相似衬线体","灰字白底导致对比度不足"],
+    "checklist": [
+      {"check": "字号层级是否清晰可辨","weight": "fatal"},
+      {"check": "正文行高是否 ≥1.4×字号","weight": "important"},
+      {"check": "是否避开了 13/15/17px","weight": "suggestion"},
+      {"check": "背景与文字对比度是否≥4.5:1","weight": "fatal"}
+    ]
+  },
+  "color": {
+    "name": "色彩心理与运用",
+    "principles": ["颜色有语义——红=警示/热情，蓝=信任/冷静，绿=自然/安全","颜色有文化——日本的'红'和西方的'红'不完全一样","少色比多色更有力——5色以上失去焦点","留白也是颜色"],
+    "checklist": [
+      {"check": "主色是否不超过3个","weight": "important"},
+      {"check": "颜色语义是否匹配设计主题","weight": "fatal"},
+      {"check": "是否存在色盲不可分辨的组合","weight": "important"},
+      {"check": "是否用了灰度来检查对比度","weight": "suggestion"}
+    ]
+  }
+}
